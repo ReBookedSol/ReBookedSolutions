@@ -61,7 +61,8 @@ const ShareProfileDialog = ({
     let shareUrl = "";
 
     switch (platform) {
-      case "twitter":
+      case "x":
+        // X uses Twitter's intent endpoint for composing tweets/updates
         shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`;
         break;
       case "facebook":
