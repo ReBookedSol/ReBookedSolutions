@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Book, Instagram, Facebook } from "lucide-react";
+import XIcon from "@/components/icons/XIcon";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 
 const Footer = () => {
@@ -199,6 +200,15 @@ const Footer = () => {
 
           {/* Social Media Links */}
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
+            <a
+              href="https://x.com/RebookedSol"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-sky-500 transition-colors"
+              aria-label="Follow us on X"
+            >
+              <XIcon className="h-5 w-5" />
+            </a>
             <a
               href="https://www.instagram.com/rebooked.solutions?igsh=M2ZsNjd2aTNmZmRh"
               target="_blank"

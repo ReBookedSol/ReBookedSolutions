@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import BackButton from "@/components/ui/BackButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, Mail, Send, Instagram, Facebook, Clock } from "lucide-react";
+import { Mail, Send, Instagram, Facebook, Clock } from "lucide-react";
+import XIcon from "@/components/icons/XIcon";
 import { submitContactMessage } from "@/services/contactService";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 
@@ -48,14 +48,6 @@ const ContactUs = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <BackButton
-          fallbackPath="/"
-          variant="ghost"
-          className="mb-6 text-book-600"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-        </BackButton>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
             <h1 className="text-3xl font-bold text-book-800 mb-6">
@@ -192,7 +184,16 @@ const ContactUs = () => {
                 <h3 className="text-lg font-semibold text-gray-800">
                   Follow Us
                 </h3>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-4 gap-3">
+                  <a
+                    href="https://x.com/RebookedSol"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 border border-book-200 hover:bg-book-50 text-gray-700 px-3 py-2 rounded-lg transition-colors"
+                  >
+                    <XIcon className="h-5 w-5" />
+                    <span>X</span>
+                  </a>
                   <a
                     href="https://www.instagram.com/rebooked.solutions?igsh=M2ZsNjd2aTNmZmRh"
                     target="_blank"
