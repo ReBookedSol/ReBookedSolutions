@@ -54,13 +54,12 @@ const UniversityProfile: React.FC = () => {
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  // Tab change handler with URL persistence and fast reload
+  // Tab change handler with URL persistence (no full reload)
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
     const params = new URLSearchParams(searchParams);
     params.set("tab", value);
     setSearchParams(params, { replace: true });
-    setTimeout(() => window.location.reload(), 0);
   }, [searchParams, setSearchParams]);
   const [selectedProgram, setSelectedProgram] = useState<Degree | null>(null);
   const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
