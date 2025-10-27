@@ -154,7 +154,6 @@ const UniversityInfo = () => {
         const newParams = new URLSearchParams();
         newParams.set("tool", value);
         setSearchParams(newParams, { replace: true });
-        setTimeout(() => window.location.reload(), 0);
       });
     },
     [setSearchParams],
