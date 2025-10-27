@@ -45,15 +45,23 @@ import { Degree } from "@/types/university";
  */
 const UniversityProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("programs");
 
-  // Optimized tab change handler
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
+  // Tab change handler with URL persistence and fast reload
   const handleTabChange = useCallback((value: string) => {
-    // Immediate state update for instant visual feedback
     setActiveTab(value);
-  }, []);
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", value);
+    setSearchParams(params, { replace: true });
+    setTimeout(() => window.location.reload(), 0);
+  }, [searchParams, setSearchParams]);
   const [selectedProgram, setSelectedProgram] = useState<Degree | null>(null);
   const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
   const [showEligibleOnly, setShowEligibleOnly] = useState(false);

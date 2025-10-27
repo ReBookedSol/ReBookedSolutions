@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import GoogleAd from "@/components/ads/GoogleAd";
 import { getPrivateInstitutionById } from "@/constants/private-institutions";
@@ -26,7 +26,21 @@ import {
 const PrivateInstitutionProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("programs");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) setActiveTab(tab);
+  }, [searchParams]);
+
+  const handleTabChange = useCallback((value: string) => {
+    setActiveTab(value);
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", value);
+    setSearchParams(params, { replace: true });
+    setTimeout(() => window.location.reload(), 0);
+  }, [searchParams, setSearchParams]);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [isProgramDialogOpen, setIsProgramDialogOpen] = useState(false);
   const [expandedTypes, setExpandedTypes] = useState<Record<string, boolean>>({});
@@ -268,7 +282,7 @@ const PrivateInstitutionProfile: React.FC = () => {
 
         {/* Main Content */}
         <div className="container mx-auto px-6 py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             {/* Tabs List */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
               <div className="block md:hidden">

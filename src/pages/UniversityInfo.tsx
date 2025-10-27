@@ -150,11 +150,11 @@ const UniversityInfo = () => {
 
   const handleTabChange = useCallback(
     (value: string) => {
-      // Use requestAnimationFrame for smoother transitions
       requestAnimationFrame(() => {
         const newParams = new URLSearchParams();
         newParams.set("tool", value);
         setSearchParams(newParams, { replace: true });
+        setTimeout(() => window.location.reload(), 0);
       });
     },
     [setSearchParams],
@@ -530,7 +530,7 @@ const UniversityInfo = () => {
               className="flex-1 hover:bg-book-50 hover:border-book-300 text-book-600 border-book-200 text-xs sm:text-sm min-h-[36px]"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/university/${applicationInfo.id}`);
+                window.location.assign(`/university/${applicationInfo.id}`);
               }}
             >
               <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
