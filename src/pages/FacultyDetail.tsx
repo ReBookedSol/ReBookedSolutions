@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import CampusNavbar from "@/components/CampusNavbar";
 import SEO from "@/components/SEO";
+import GoogleAd from "@/components/ads/GoogleAd";
 import { SOUTH_AFRICAN_UNIVERSITIES } from "@/constants/universities";
 import { University, Faculty, Degree } from "@/types/university";
 
@@ -58,6 +59,9 @@ const FacultyDetail = () => {
     return (
       <>
         <CampusNavbar />
+        <div className="container mx-auto px-4 py-4">
+          <GoogleAd />
+        </div>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
           <div className="text-center max-w-md mx-auto">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
@@ -103,6 +107,10 @@ const FacultyDetail = () => {
       />
 
       <CampusNavbar />
+
+      <div className="container mx-auto px-4 py-4">
+        <GoogleAd />
+      </div>
 
       <div className="min-h-screen bg-gray-50">
         {/* Hero Section with Study Theme - Mobile Optimized */}
