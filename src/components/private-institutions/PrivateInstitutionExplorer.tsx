@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building, Search, ExternalLink, Globe, CheckCircle, GraduationCap, School, Landmark, ArrowRight, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const PrivateInstitutionExplorer = () => {
   const [query, setQuery] = useState("");
@@ -210,7 +211,7 @@ const PrivateInstitutionExplorer = () => {
                 <li>DHET registration for private providers</li>
               </ul>
               <div className="text-xs mt-2">
-                Verify on: <a href="https://www.che.ac.za/" className="text-book-600 hover:underline" target="_blank" rel="noreferrer">CHE</a> • <a href="https://www.saqa.org.za/" className="text-book-600 hover:underline" target="_blank" rel="noreferrer">SAQA</a>
+                Verify on: <a href="https://www.che.ac.za/" className="text-book-600 hover:underline" target="_blank" rel="noreferrer">CHE</a> ��� <a href="https://www.saqa.org.za/" className="text-book-600 hover:underline" target="_blank" rel="noreferrer">SAQA</a>
               </div>
             </div>
             <div className="p-4 rounded-lg bg-green-50 border border-green-200">
