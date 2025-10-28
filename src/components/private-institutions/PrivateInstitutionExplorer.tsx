@@ -132,14 +132,14 @@ const PrivateInstitutionExplorer = () => {
                   ) : null}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Link to={`/private-institution/${inst.id}`} className="sm:flex-1">
-                    <Button variant="outline" className="w-full hover:bg-book-50 hover:border-book-300 text-book-600 border-book-200" asChild>
-                      <span>
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        View Profile
-                      </span>
-                    </Button>
-                  </Link>
+                  <div className="sm:flex-1">
+                  <Button variant="outline" className="w-full hover:bg-book-50 hover:border-book-300 text-book-600 border-book-200" asChild>
+                    <Link to={`/private-institution/${inst.id}`} className="w-full inline-flex items-center justify-center">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Profile
+                    </Link>
+                  </Button>
+                </div>
                   {inst.contact?.website && (
                     <a href={inst.contact.website} target="_blank" rel="noopener noreferrer" className="sm:flex-1">
                       <Button variant="outline" className="w-full border-book-200 text-book-600 hover:bg-book-50">
