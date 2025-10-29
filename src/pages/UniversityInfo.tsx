@@ -164,6 +164,13 @@ const UniversityInfo = () => {
   // Throttled handlers for better performance
   const throttledTabChange = useThrottleCallback(handleTabChange, 100);
 
+  // Refresh top ad when tab changes
+  useEffect(() => {
+    if (topAdRef.current?.refresh) {
+      topAdRef.current.refresh();
+    }
+  }, [currentTool]);
+
   // Memoized statistics calculation for better performance
   const stats = useMemo(() => {
     try {
