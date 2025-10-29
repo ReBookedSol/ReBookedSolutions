@@ -6,6 +6,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     name: "AAA School of Advertising (Pty) Ltd",
     abbreviation: "AAA",
     locations: ["Johannesburg, Gauteng", "Cape Town, Western Cape"],
+    contact: { website: "https://aaaschool.ac.za/" },
     programs: [
       {
         id: "aaa-hc-digital-marketing",
@@ -70,6 +71,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     name: "Academy for Facility Management (Pty) Ltd (A4FM)",
     abbreviation: "A4FM",
     locations: ["Pretoria, Gauteng", "Centurion, Gauteng"],
+    contact: { website: "https://www.a4fm.ac.za/" },
     programs: [
       {
         id: "a4fm-hc-facilities-management",
@@ -102,6 +104,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     name: "Academy of Sound Engineering (Pty) Ltd",
     abbreviation: "ASE",
     locations: ["Johannesburg, Gauteng", "Cape Town, Western Cape"],
+    contact: { website: "https://ase.co.za/" },
     programs: [
       {
         id: "ase-hc-audio-technology",
@@ -157,6 +160,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "act-cape-town",
     name: "ACT Cape Town (Pty) Ltd",
     locations: ["Cape Town, Western Cape"],
+    contact: { website: "https://www.actcapetown.co.za/" },
     programs: [
       {
         id: "act-hc-acting-for-film",
@@ -181,6 +185,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     name: "Afrikaanse Protestantse Akademie (Die) NPC",
     abbreviation: "APA",
     locations: ["Pretoria, Gauteng"],
+    contact: { website: "https://apa.ac.za/" },
     programs: [
       {
         id: "apa-ba",
@@ -220,6 +225,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "akademia",
     name: "Akademia NPC",
     locations: ["Centurion, Gauteng"],
+    contact: { website: "https://akademia.ac.za/" },
     programs: [
       { id: "ak-hc-accounting", name: "Higher Certificate in Accounting", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
       { id: "ak-hc-office-admin", name: "Higher Certificate in Office Administration", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
@@ -255,6 +261,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     name: "Akademiese Reformatoriese Opleiding en Studies (AROS) NPC",
     abbreviation: "AROS",
     locations: ["Pretoria, Gauteng"],
+    contact: { website: "https://www.aros.ac.za/" },
     programs: [
       { id: "aros-hc-education", name: "Higher Certificate in Education", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
       { id: "aros-diploma-grade-r", name: "Diploma in Grade R Teaching", type: "diploma", mode: "distance", credits: 360, nqfLevel: 6 },
@@ -269,6 +276,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "the-animation-school",
     name: "Animation School (Pty) Ltd (The)",
     locations: ["Cape Town, Western Cape", "Johannesburg, Gauteng"],
+    contact: { website: "https://www.theanimationschool.co.za/" },
     programs: [
       { id: "tas-dip-digital-animation", name: "Diploma in Digital Animation", type: "diploma", mode: "contact", credits: 360, nqfLevel: 6 },
     ],
@@ -277,6 +285,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "baptist-theological-college-sa",
     name: "Baptist Theological College of Southern Africa (The) NPC",
     locations: ["Randburg, Gauteng"],
+    contact: { website: "https://btc.co.za/" },
     programs: [
       { id: "btc-hc-theology", name: "Higher Certificate in Theology", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
       { id: "btc-hc-ministry", name: "Higher Certificate in Ministry", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
@@ -290,6 +299,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "belgium-campus-itversity",
     name: "Belgium Campus ITVERSITY NPC",
     locations: ["Akasia, Gauteng", "Kempton Park, Gauteng"],
+    contact: { website: "https://www.belgiumcampus.ac.za/" },
     programs: [
       { id: "bc-dip-it", name: "Diploma in Information Technology", type: "diploma", mode: "contact", credits: 360, nqfLevel: 6 },
       { id: "bc-bit-software-development", name: "Bachelor of Information Technology Software Development", type: "bachelor", mode: "contact", credits: 360, nqfLevel: 7 },
@@ -300,6 +310,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "berea-college-of-technology",
     name: "Berea College of Technology (Pty) Ltd",
     locations: ["Durban, KwaZulu-Natal"],
+    contact: { website: "https://www.bct.ac.za/" },
     programs: [
       { id: "berea-hc-accounting", name: "Higher Certificate in Accounting", type: "higher-certificate", mode: "contact", credits: 120, nqfLevel: 5 },
       { id: "berea-hc-business-analysis", name: "Higher Certificate in Business Analysis", type: "higher-certificate", mode: "contact", credits: 120, nqfLevel: 5 },
@@ -334,6 +345,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "bhc-school-of-design",
     name: "BHC School of Design (Pty) Ltd",
     locations: ["Cape Town, Western Cape"],
+    contact: { website: "https://designschool.co.za/" },
     programs: [
       { id: "bhc-hc-interior-decorating", name: "Higher Certificate in Interior Decorating", type: "higher-certificate", mode: "contact", credits: 120, nqfLevel: 5 },
       { id: "bhc-dip-interior-design", name: "Diploma in Interior Design", type: "diploma", mode: "contact", credits: 360, nqfLevel: 6 },
@@ -345,6 +357,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     name: "Boston City Campus (Pty) Ltd",
     abbreviation: "Boston",
     locations: ["Johannesburg, Gauteng"],
+    contact: { website: "https://www.boston.ac.za/" },
     programs: [
       { id: "boston-hc-accounting-practice", name: "Higher Certificate in Accounting Practice", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
       { id: "boston-hc-advertising-integrated-comm", name: "Higher Certificate in Advertising and Integrated Communication Practice", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
@@ -388,6 +401,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "boston-media-house",
     name: "Boston Media House (Pty) Ltd",
     locations: ["Sandton, Gauteng"],
+    contact: { website: "https://bostonmediahouse.ac.za/" },
     programs: [
       { id: "bmh-dip-media-practices", name: "Diploma in Media Practices", type: "diploma", mode: "contact", credits: 360, nqfLevel: 6 },
       { id: "bmh-dip-radio-television-production", name: "Diploma in Radio and Television Production", type: "diploma", mode: "contact", credits: 360, nqfLevel: 6 },
@@ -398,6 +412,7 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
     id: "business-management-training-college",
     name: "Business Management Training College (Pty) Ltd",
     locations: ["Johannesburg, Gauteng"],
+    contact: { website: "https://www.bmtcollege.ac.za/" },
     programs: [
       { id: "bmtc-hc-business-management", name: "Higher Certificate in Business Management", type: "higher-certificate", mode: "distance", credits: 120, nqfLevel: 5 },
       { id: "bmtc-dip-business-management", name: "Diploma in Business Management", type: "diploma", mode: "distance", credits: 360, nqfLevel: 6 },
@@ -409,6 +424,8 @@ export const PRIVATE_GROUP_1: PrivateInstitution[] = [
   {
     id: "cape-audio-college",
     name: "Cape Audio College (Pty) Ltd",
+    locations: ["Observatory, Cape Town"],
+    contact: { website: "https://capeaudiocollege.co.za/" },
     programs: [
       { id: "cac-hc-sound-technology", name: "Higher Certificate in Sound Technology", type: "higher-certificate", mode: "contact", credits: 120, nqfLevel: 5 },
       { id: "cac-dip-sound-technology-production", name: "Diploma in Sound Technology and Production", type: "diploma", mode: "contact", credits: 360, nqfLevel: 6 },

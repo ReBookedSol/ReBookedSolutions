@@ -5,6 +5,7 @@ import {
   useCallback,
   lazy,
   Suspense,
+  useRef,
 } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -84,6 +85,7 @@ const UniversityInfo = () => {
   const [showAllUniversities, setShowAllUniversities] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notifyLoading, setNotifyLoading] = useState(false);
+  const topAdRef = useRef<any>(null);
 
   // Early return for testing
   if (import.meta.env.DEV) {
@@ -161,6 +163,13 @@ const UniversityInfo = () => {
 
   // Throttled handlers for better performance
   const throttledTabChange = useThrottleCallback(handleTabChange, 100);
+
+  // Refresh top ad when tab changes
+  useEffect(() => {
+    if (topAdRef.current?.refresh) {
+      topAdRef.current.refresh();
+    }
+  }, [currentTool]);
 
   // Memoized statistics calculation for better performance
   const stats = useMemo(() => {
@@ -643,7 +652,7 @@ const UniversityInfo = () => {
       <CampusNavbar />
 
       <div className="container mx-auto px-4 py-4">
-        <GoogleAd />
+        <GoogleAd ref={topAdRef} />
       </div>
 
       <div className="min-h-screen bg-gray-50">
