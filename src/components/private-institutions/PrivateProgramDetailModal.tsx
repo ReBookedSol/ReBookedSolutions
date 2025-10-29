@@ -77,15 +77,17 @@ const PrivateProgramDetailModal: React.FC<PrivateProgramDetailModalProps> = ({ p
               <TabsTrigger value="overview" className="w-full rounded-lg py-2 px-3 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 text-sm">Overview</TabsTrigger>
               <TabsTrigger value="structure" className="w-full rounded-lg py-2 px-3 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 text-sm">Program Details</TabsTrigger>
               <TabsTrigger value="accreditation" className="w-full rounded-lg py-2 px-3 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 text-sm">Accreditation</TabsTrigger>
+              <TabsTrigger value="contact" className="w-full rounded-lg py-2 px-3 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 text-sm">Contact & Apply</TabsTrigger>
               <TabsTrigger value="resources" className="w-full rounded-lg py-2 px-3 data-[state=active]:bg-book-50 data-[state=active]:text-book-700 text-sm">Resources</TabsTrigger>
             </TabsList>
           </div>
 
           <div className="hidden sm:block">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="structure">Program Details</TabsTrigger>
               <TabsTrigger value="accreditation">Accreditation</TabsTrigger>
+              <TabsTrigger value="contact">Contact & Apply</TabsTrigger>
               <TabsTrigger value="resources">Resources</TabsTrigger>
             </TabsList>
           </div>
