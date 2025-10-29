@@ -166,10 +166,18 @@ const UniversityInfo = () => {
   // Throttled handlers for better performance
   const throttledTabChange = useThrottleCallback(handleTabChange, 100);
 
-  // Refresh top ad when tab changes
+  // Refresh ads when tab changes
   useEffect(() => {
     if (topAdRef.current?.refresh) {
       topAdRef.current.refresh();
+    }
+
+    // Refresh bursary ads when switching to/from bursaries tab
+    if (currentTool === "bursaries" && bursaryAdRefresh.current) {
+      // Delay slightly to ensure component is mounted and ready
+      setTimeout(() => {
+        setAdRefreshTrigger(prev => prev + 1);
+      }, 100);
     }
   }, [currentTool]);
 
