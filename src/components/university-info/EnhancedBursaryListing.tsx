@@ -66,6 +66,13 @@ const EnhancedBursaryListing = ({ refreshTrigger = 0 }: EnhancedBursaryListingPr
   const [showFilters, setShowFilters] = useState(false);
   const googleAdRef = useRef<any>(null);
 
+  // Refresh Google Ad when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0 && googleAdRef.current?.refresh) {
+      googleAdRef.current.refresh();
+    }
+  }, [refreshTrigger]);
+
   // Filter university bursaries only
   const filteredBursaries = useMemo(() => {
     const universityBursaries = BURSARIES.filter(
