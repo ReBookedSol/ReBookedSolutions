@@ -5,6 +5,7 @@ import {
   useCallback,
   lazy,
   Suspense,
+  useRef,
 } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -84,6 +85,8 @@ const UniversityInfo = () => {
   const [showAllUniversities, setShowAllUniversities] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notifyLoading, setNotifyLoading] = useState(false);
+  const topAdRef = useRef<any>(null);
+  const [adRefreshTrigger, setAdRefreshTrigger] = useState(0);
 
   // Early return for testing
   if (import.meta.env.DEV) {
@@ -161,6 +164,16 @@ const UniversityInfo = () => {
 
   // Throttled handlers for better performance
   const throttledTabChange = useThrottleCallback(handleTabChange, 100);
+
+  // Refresh bursary ads when switching to bursaries tab
+  useEffect(() => {
+    if (currentTool === "bursaries") {
+      // Delay slightly to ensure component is mounted and ads are ready
+      setTimeout(() => {
+        setAdRefreshTrigger(prev => prev + 1);
+      }, 150);
+    }
+  }, [currentTool]);
 
   // Memoized statistics calculation for better performance
   const stats = useMemo(() => {
@@ -643,7 +656,7 @@ const UniversityInfo = () => {
       <CampusNavbar />
 
       <div className="container mx-auto px-4 py-4">
-        <GoogleAd />
+        <GoogleAd ref={topAdRef} />
       </div>
 
       <div className="min-h-screen bg-gray-50">
@@ -818,7 +831,7 @@ const UniversityInfo = () => {
 
             <TabsContent value="bursaries" className="space-y-6">
               <Suspense fallback={<LoadingSection />}>
-                <EnhancedBursaryListing />
+                <EnhancedBursaryListing refreshTrigger={adRefreshTrigger} />
               </Suspense>
             </TabsContent>
 
