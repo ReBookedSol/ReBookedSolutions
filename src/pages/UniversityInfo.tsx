@@ -86,6 +86,8 @@ const UniversityInfo = () => {
   const [error, setError] = useState<string | null>(null);
   const [notifyLoading, setNotifyLoading] = useState(false);
   const topAdRef = useRef<any>(null);
+  const bursaryAdRefresh = useRef<(() => void) | null>(null);
+  const [adRefreshTrigger, setAdRefreshTrigger] = useState(0);
 
   // Early return for testing
   if (import.meta.env.DEV) {
