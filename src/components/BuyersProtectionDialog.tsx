@@ -19,7 +19,7 @@ interface BuyersProtectionDialogProps {
 
 const BuyersProtectionDialog = ({
   triggerClassName,
-  triggerVariant = "link",
+  triggerVariant = "outline",
   triggerLabel = "Buyer Protection",
   triggerProps,
 }: BuyersProtectionDialogProps) => {
@@ -29,58 +29,55 @@ const BuyersProtectionDialog = ({
         <Button
           variant={triggerVariant}
           size="sm"
-          className={triggerClassName}
+          className={cn("rounded-md px-3 py-1 gap-2", triggerClassName)}
           {...triggerProps}
         >
           <ShieldCheck className="h-4 w-4" />
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="rounded-xl p-6 sm:p-8 shadow-2xl max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-green-600" /> Buyer Protection
+          <DialogTitle className="flex items-center gap-3">
+            <ShieldCheck className="h-6 w-6 text-green-600" />
+            <span>Buyer Protection</span>
           </DialogTitle>
-          <DialogDescription>
-            We keep your money safe until you receive the correct book.
+          <DialogDescription className="mt-1">
+            Your funds are protected — we only release payment to the seller after you
+            confirm receipt of the correct book.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 text-sm leading-relaxed text-gray-700">
+
+        <div className="space-y-4 text-sm leading-relaxed text-gray-700 mt-4">
           <div className="flex items-start gap-3">
             <ShieldCheck className="h-5 w-5 text-green-600 mt-0.5" />
             <p>
-              Your payment is held securely and is only released to the seller after
-              delivery has been confirmed or the order is successfully completed.
+              Payments are held securely and released after delivery confirmation or
+              order completion.
             </p>
           </div>
           <div className="flex items-start gap-3">
             <ShieldCheck className="h-5 w-5 text-green-600 mt-0.5" />
             <p>
-              If the book is not delivered, arrives significantly different to the listing,
-              or is the wrong item, you may be eligible for a full refund.
-            </p>
-          </div>
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 text-green-600 mt-0.5" />
-            <p>
-              Report any issues through your Orders page. Our team will assist with
-              returns, replacements, or refunds based on the outcome.
+              Didn’t receive the book, or it’s not as described? You may be eligible for a
+              full refund after we review your case.
             </p>
           </div>
           <div className="flex items-start gap-3">
             <HelpCircle className="h-5 w-5 text-blue-600 mt-0.5" />
             <p>
-              Keep all communication and proof of the issue (photos, tracking updates).
-              This helps us resolve your case quickly.
+              Keep photos and tracking info handy — this speeds up our review and resolution.
             </p>
           </div>
-          <div className="flex items-start gap-3">
-            <ShieldAlert className="h-5 w-5 text-amber-600 mt-0.5" />
-            <p>
-              Normal wear is expected for used books. Buyer Protection covers
-              non-delivery and items that are not as described.
-            </p>
-          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <DialogClose asChild>
+            <Button variant="outline" size="sm">Close</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button size="sm">Got it</Button>
+          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>
