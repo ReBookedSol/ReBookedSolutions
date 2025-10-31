@@ -33,13 +33,22 @@ const ReadyToGetStarted = () => {
             </Button>
 
             <Button
-              onClick={() => navigate("/books")}
+              onClick={() => navigate("/getting-started")}
               size="lg"
               variant="outline"
               className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-book-600 font-semibold px-8 py-4 text-lg bg-white/10 backdrop-blur-sm"
             >
-              Browse Books
+              Getting Started
             </Button>
+
+          </div>
+
+          <div className="mt-6">
+            <BuyersProtectionDialog
+              triggerVariant="ghost"
+              triggerLabel="Buyer Protection"
+              triggerClassName="text-white"
+            />
           </div>
 
           <div className="mt-8 text-sm sm:text-base text-white/80">
