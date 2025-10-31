@@ -43,14 +43,6 @@ const ReadyToGetStarted = () => {
 
           </div>
 
-          <div className="mt-6">
-            <BuyersProtectionDialog
-              triggerVariant="ghost"
-              triggerLabel="Buyer Protection"
-              triggerClassName="text-white"
-            />
-          </div>
-
           <div className="mt-8 text-sm sm:text-base text-white/80">
             <p>Join thousands of students already saving money on textbooks</p>
           </div>
