@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { getSafeErrorMessage } from "@/utils/errorMessageUtils";
 import Pagination from "@/components/ui/pagination";
 import { getOptimizedImageUrl } from "@/utils/imageOptimization";
+import BuyersProtectionDialog from "@/components/BuyersProtectionDialog";
 
 interface BookGridProps {
   books: Book[];
