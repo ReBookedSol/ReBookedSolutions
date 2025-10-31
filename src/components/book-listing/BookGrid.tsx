@@ -232,17 +232,6 @@ const BookGrid = ({
                       </span>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <BuyersProtectionDialog
-                        triggerVariant="outline" triggerClassName="text-book-600 border-book-600"
-                        triggerProps={{
-                          onClick: (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          },
-                        }}
-                      />
-                    </div>
 
                     {/* Commit Button for Seller - even for unavailable books */}
                     {isPendingCommit && isOwner && onCommitBook && (
@@ -348,17 +337,6 @@ const BookGrid = ({
                       </span>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <BuyersProtectionDialog
-                        triggerVariant="outline" triggerClassName="text-book-600 border-book-600"
-                        triggerProps={{
-                          onClick: (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          },
-                        }}
-                      />
-                    </div>
 
                     {/* Commit Button for Seller */}
                     {isPendingCommit && isOwner && onCommitBook && (
