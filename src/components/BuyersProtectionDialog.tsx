@@ -1,3 +1,4 @@
+import React from "react";
 import { ShieldCheck, ShieldAlert, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
