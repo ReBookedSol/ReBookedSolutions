@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { callEdgeFunction } from "@/utils/edgeFunctionClient";
 import {
   Profile,
   loginUser,
@@ -203,6 +204,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             emailRedirectTo: `${window.location.origin}/auth/callback`
           },
         });
+
+        // If we have an affiliate code and a new user id, track referral via Edge Function
+        try {
+          if (affiliateCode && data?.user?.id) {
+            await callEdgeFunction('track-referral', {
+              method: 'POST',
+              body: { affiliate_code: affiliateCode, new_user_id: data.user.id }
+            });
+          }
+        } catch (refErr) {
+          console.warn('Referral tracking failed (non-blocking):', refErr);
+        }
 
         // Stash phone to ensure we can sync it on first login even if metadata is missing
         try {
