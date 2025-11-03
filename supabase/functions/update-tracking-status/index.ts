@@ -284,6 +284,36 @@ Deno.serve(async (req) => {
               if (recipientResult.success) {
                 console.log(`💰 PAYOUT READY: Seller ${order.seller_id} can now receive R${((recipientResult.payout_amount || 0) / 100).toFixed(2)}`)
               }
+
+              // Trigger affiliate earning processing (non-blocking)
+              try {
+                const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+                const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+                // Fetch order to get book_id
+                const { data: orderRow } = await supabase
+                  .from('orders')
+                  .select('id, book_id, seller_id')
+                  .eq('id', order.order_id)
+                  .single();
+
+                if (orderRow) {
+                  await fetch(`${SUPABASE_URL}/functions/v1/process-affiliate-earning`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                    },
+                    body: JSON.stringify({
+                      book_id: orderRow.book_id || null,
+                      order_id: orderRow.id,
+                      seller_id: orderRow.seller_id,
+                    })
+                  });
+                }
+              } catch (affErr) {
+                console.warn('Affiliate earning trigger failed (non-blocking):', affErr);
+              }
             }
 
             updateResults.push(updateResult)

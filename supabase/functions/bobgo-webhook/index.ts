@@ -123,10 +123,37 @@ serve(async (req) => {
         const tracking_number = payload?.tracking_reference || payload?.tracking_number;
         if (tracking_number) {
           try {
-            await supabase
+            const { data: updatedOrderRow, error: updatedOrderError } = await supabase
               .from("orders")
               .update({ status: "completed", delivery_status: "delivered", updated_at: new Date().toISOString() })
-              .eq("tracking_number", tracking_number);
+              .eq("tracking_number", tracking_number)
+              .select("id, book_id, seller_id")
+              .single();
+
+            if (updatedOrderError) {
+              throw updatedOrderError;
+            }
+
+            try {
+              const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+              const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+              if (updatedOrderRow) {
+                await fetch(`${SUPABASE_URL}/functions/v1/process-affiliate-earning`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+                  },
+                  body: JSON.stringify({
+                    book_id: updatedOrderRow.book_id || null,
+                    order_id: updatedOrderRow.id,
+                    seller_id: updatedOrderRow.seller_id,
+                  })
+                });
+              }
+            } catch (affErr) {
+              console.warn('Affiliate earning call failed (non-blocking):', affErr);
+            }
           } catch (err) {
             console.error("Failed to mark order as delivered:", err);
           }
