@@ -44,11 +44,6 @@ const BankingProfileTab = () => {
     refreshBankingDetails,
   } = useBanking();
 
-  const [viewMode, setViewMode] = useState<"summary" | "detailed" | "edit">(
-    "summary",
-  );
-  const [subaccountCode, setSubaccountCode] = useState<string | null>(null);
-  const [loadingSubaccount, setLoadingSubaccount] = useState(false);
   const [decryptedDetails, setDecryptedDetails] = useState<DecryptedBankingDetails | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [showFullAccount, setShowFullAccount] = useState(false);
