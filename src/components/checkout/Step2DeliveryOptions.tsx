@@ -104,7 +104,7 @@ const Step2DeliveryOptions: React.FC<Step2DeliveryOptionsProps> = ({
         {
           courier: "bobgo",
           service_name: "Standard Delivery",
-          price: 95,
+          price: 107,
           estimated_days: 3,
           description: "Estimated rate - tracking included",
           zone_type: buyerAddress.province === sellerAddress.province
