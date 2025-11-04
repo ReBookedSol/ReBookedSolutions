@@ -107,35 +107,9 @@ const BankingProfileTab = () => {
     toast.success(`${label} copied to clipboard`);
   };
 
-  const handleViewDetailed = async () => {
-    if (!subaccountCode) {
-      setLoadingSubaccount(true);
-      try {
-        const code = await PaystackSubaccountService.getUserSubaccountCode();
-        if (code) {
-          setSubaccountCode(code);
-          setViewMode("detailed");
-        } else {
-          toast.error("No subaccount found");
-        }
-      } catch (error) {
-        toast.error("Failed to load subaccount details");
-      } finally {
-        setLoadingSubaccount(false);
-      }
-    } else {
-      setViewMode("detailed");
-    }
-  };
-
   const handleEditSuccess = () => {
-    setViewMode("summary");
     refreshBankingDetails();
     toast.success("Banking details updated successfully!");
-  };
-
-  const handleBackToSummary = () => {
-    setViewMode("summary");
   };
 
   if (isLoading) {
