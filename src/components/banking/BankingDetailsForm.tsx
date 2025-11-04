@@ -66,6 +66,7 @@ const BankingDetailsForm: React.FC<BankingDetailsFormProps> = ({
   showAsModal = false,
   editMode = false,
 }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     businessName: "",
     email: "",
@@ -82,25 +83,24 @@ const BankingDetailsForm: React.FC<BankingDetailsFormProps> = ({
   // 🔄 Load existing data if in edit mode (but block editing)
   useEffect(() => {
     const loadExistingData = async () => {
-      if (!editMode) return;
+      if (!editMode || !user) return;
 
       try {
         setIsLoading(true);
-        const status =
-          await PaystackSubaccountService.getUserSubaccountStatus();
+        const bankingDetails = await BankingService.getUserBankingDetails(user.id);
 
-        if (status.hasSubaccount) {
+        if (bankingDetails) {
           setFormData({
-            businessName: status.businessName || "",
-            email: status.email || "",
-            bankName: status.bankName || "",
-            accountNumber: status.accountNumber || "",
+            businessName: bankingDetails.business_name || "",
+            email: bankingDetails.email || "",
+            bankName: bankingDetails.bank_name || "",
+            accountNumber: bankingDetails.account_number || "",
           });
 
           const selectedBank = SOUTH_AFRICAN_BANKS.find(
-            (bank) => bank.name === status.bankName,
+            (bank) => bank.name === bankingDetails.bank_name,
           );
-          setBranchCode(selectedBank?.branchCode || "");
+          setBranchCode(bankingDetails.bank_code || selectedBank?.branchCode || "");
         }
       } catch (error) {
         toast.error("Failed to load existing banking details");
@@ -113,9 +113,9 @@ const BankingDetailsForm: React.FC<BankingDetailsFormProps> = ({
     if (!editMode) {
       autofillUserInfo();
     }
-  }, [editMode]);
+  }, [editMode, user]);
 
-  // �� Auto-fill user info from profile
+  // 📝 Auto-fill user info from profile
   const autofillUserInfo = async () => {
     if (hasAutofilled || editMode) return;
 
