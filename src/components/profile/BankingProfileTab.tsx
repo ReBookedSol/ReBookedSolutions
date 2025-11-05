@@ -9,7 +9,6 @@ import {
   CreditCard,
   AlertTriangle,
   CheckCircle,
-  Lock,
   Info,
   ArrowRight,
   Building2,
