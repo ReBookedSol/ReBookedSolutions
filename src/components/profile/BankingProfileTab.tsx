@@ -117,6 +117,53 @@ const BankingProfileTab = () => {
     toast.success(`${label} copied to clipboard`);
   };
 
+  const handleDeleteBankingDetails = async () => {
+    if (!user?.id) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    setIsDeletingBanking(true);
+    try {
+      const { error } = await supabase
+        .from("banking_subaccounts")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) {
+        toast.error("Failed to delete banking details");
+        console.error("Delete error:", error);
+        return;
+      }
+
+      // Clear profile subaccount code
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          subaccount_code: null,
+          preferences: {
+            banking_setup_complete: false,
+          },
+        })
+        .eq("id", user.id);
+
+      if (profileError) {
+        console.error("Profile update error:", profileError);
+      }
+
+      setShowDeleteDialog(false);
+      setShowFullAccount(false);
+      setDecryptedDetails(null);
+      refreshBankingDetails();
+      toast.success("Banking details deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsDeletingBanking(false);
+    }
+  };
+
   const handleEditSuccess = () => {
     refreshBankingDetails();
     toast.success("Banking details updated successfully!");
