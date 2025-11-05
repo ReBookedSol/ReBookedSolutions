@@ -136,10 +136,18 @@ serve(async (req) => {
       const decryptedBankCode = await decryptData(encCode, encryptionKey);
 
       let decryptedBankName: string | null = null;
+      let decryptedBusinessName: string | null = null;
+      let decryptedEmail: string | null = null;
       let decryptedSubaccount: string | null = null;
       try {
         decryptedBankName = encBankName ? await decryptData(encBankName, encryptionKey) : null;
       } catch (_) { decryptedBankName = null; }
+      try {
+        decryptedBusinessName = encBusinessName ? await decryptData(encBusinessName, encryptionKey) : null;
+      } catch (_) { decryptedBusinessName = null; }
+      try {
+        decryptedEmail = encEmail ? await decryptData(encEmail, encryptionKey) : null;
+      } catch (_) { decryptedEmail = null; }
       try {
         decryptedSubaccount = encSub ? await decryptData(encSub, encryptionKey) : null;
       } catch (_) { decryptedSubaccount = null; }
@@ -153,7 +161,8 @@ serve(async (req) => {
             account_number: decryptedAccountNumber,
             bank_code: decryptedBankCode,
             bank_name: decryptedBankName ?? bankingDetails.bank_name ?? null,
-            business_name: bankingDetails.business_name,
+            business_name: decryptedBusinessName ?? bankingDetails.business_name ?? null,
+            email: decryptedEmail ?? bankingDetails.email ?? null,
             subaccount_code: decryptedSubaccount ?? bankingDetails.subaccount_code ?? null
           },
           sources
