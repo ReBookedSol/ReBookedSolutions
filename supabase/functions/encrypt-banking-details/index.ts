@@ -17,23 +17,9 @@ interface EncryptedBundle {
 interface BankingEncryptionRequest {
   account_number: string
   bank_code: string
-  bank_name?: string
-  business_name?: string
+  bank_name: string
+  business_name: string
   email?: string
-  subaccount_code?: string
-}
-
-interface BankingEncryptionResponse {
-  success: boolean
-  data?: {
-    encrypted_account_number: EncryptedBundle
-    encrypted_bank_code: EncryptedBundle
-    encrypted_bank_name?: EncryptedBundle
-    encrypted_business_name?: EncryptedBundle
-    encrypted_email?: EncryptedBundle
-    encrypted_subaccount_code?: EncryptedBundle
-  }
-  error?: string
 }
 
 function base64ToBytes(b64: string): Uint8Array {
@@ -63,18 +49,21 @@ function getEncryptionKey(version?: number): string | null {
 
 async function importAesKey(rawKeyString: string): Promise<CryptoKey> {
   const enc = new TextEncoder()
-  const keyBytes = enc.encode(rawKeyString)
+  let keyBytes: Uint8Array = enc.encode(rawKeyString)
+
   if (keyBytes.byteLength !== 32) {
     try {
-      const b64Bytes = base64ToBytes(rawKeyString)
-      if (b64Bytes.byteLength !== 32) {
+      const b64 = base64ToBytes(rawKeyString)
+      if (b64.byteLength !== 32) {
         throw new Error('INVALID_KEY_LENGTH')
       }
-      return crypto.subtle.importKey('raw', b64Bytes, 'AES-GCM', false, ['encrypt'])
+      keyBytes = new Uint8Array(b64)
     } catch (_e) {
       throw new Error('INVALID_KEY_LENGTH')
     }
   }
+
+  // @ts-ignore - Deno edge runtime types
   return crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt'])
 }
 
@@ -95,11 +84,11 @@ async function encryptGCM(plaintext: string, keyString: string, version?: number
     const encrypted = await crypto.subtle.encrypt(
       {
         name: 'AES-GCM',
-        iv: ivBytes,
+        iv: new Uint8Array(ivBytes),
         tagLength: 128,
       },
       cryptoKey,
-      encoded,
+      new Uint8Array(encoded),
     )
 
     const full = new Uint8Array(encrypted)
@@ -131,7 +120,7 @@ async function getUserFromRequest(req: Request) {
 
   const token = authHeader.replace('Bearer ', '')
   const { data: { user }, error } = await supabase.auth.getUser(token)
-  
+
   if (error) {
     console.error('Auth error:', error)
     return null
@@ -147,7 +136,7 @@ serve(async (req) => {
 
   try {
     console.log('=== Encrypt Banking Details Request ===')
-    
+
     const user = await getUserFromRequest(req)
     if (!user) {
       console.error('Authentication failed - no user found')
@@ -169,11 +158,11 @@ serve(async (req) => {
       )
     }
 
-    const { account_number, bank_code, bank_name, business_name, email, subaccount_code } = body
+    const { account_number, bank_code, bank_name, business_name, email } = body
 
-    if (!account_number || !bank_code) {
+    if (!account_number || !bank_code || !bank_name || !business_name) {
       return new Response(
-        JSON.stringify({ success: false, error: 'account_number and bank_code are required' }),
+        JSON.stringify({ success: false, error: 'account_number, bank_code, bank_name, and business_name are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -189,26 +178,12 @@ serve(async (req) => {
     try {
       const encrypted_account_number = await encryptGCM(account_number, encryptionKey, 1)
       const encrypted_bank_code = await encryptGCM(bank_code, encryptionKey, 1)
+      const encrypted_bank_name = await encryptGCM(bank_name, encryptionKey, 1)
+      const encrypted_business_name = await encryptGCM(business_name, encryptionKey, 1)
 
-      let encrypted_bank_name: EncryptedBundle | undefined
-      let encrypted_business_name: EncryptedBundle | undefined
       let encrypted_email: EncryptedBundle | undefined
-      let encrypted_subaccount_code: EncryptedBundle | undefined
-
-      if (bank_name) {
-        encrypted_bank_name = await encryptGCM(bank_name, encryptionKey, 1)
-      }
-
-      if (business_name) {
-        encrypted_business_name = await encryptGCM(business_name, encryptionKey, 1)
-      }
-
       if (email) {
         encrypted_email = await encryptGCM(email, encryptionKey, 1)
-      }
-
-      if (subaccount_code) {
-        encrypted_subaccount_code = await encryptGCM(subaccount_code, encryptionKey, 1)
       }
 
       console.log('✅ Successfully encrypted banking details for user:', user.id)
@@ -219,10 +194,9 @@ serve(async (req) => {
           data: {
             encrypted_account_number,
             encrypted_bank_code,
-            ...(encrypted_bank_name && { encrypted_bank_name }),
-            ...(encrypted_business_name && { encrypted_business_name }),
+            encrypted_bank_name,
+            encrypted_business_name,
             ...(encrypted_email && { encrypted_email }),
-            ...(encrypted_subaccount_code && { encrypted_subaccount_code }),
           }
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -238,7 +212,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Unexpected error in encrypt-banking-details:', error)
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: false,
         error: 'Internal server error'
       }),
