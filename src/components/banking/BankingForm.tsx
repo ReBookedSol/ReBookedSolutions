@@ -143,30 +143,49 @@ export default function BankingForm({ onSuccess, onCancel }: BankingFormProps) {
       // Prepare encrypted bundle for storage
       const encryptedData = encryptionResult.data;
 
-      // Upsert banking details with ONLY encrypted values (no plain text sensitive data)
-      const { error } = await supabase
+      // Check if user already has banking details
+      const { data: existingRecord } = await supabase
         .from("banking_subaccounts")
-        .upsert({
-          user_id: session.user.id,
-          encrypted_account_number: JSON.stringify(encryptedData.encrypted_account_number),
-          encrypted_bank_code: JSON.stringify(encryptedData.encrypted_bank_code),
-          encrypted_bank_name: encryptedData.encrypted_bank_name
-            ? JSON.stringify(encryptedData.encrypted_bank_name)
-            : null,
-          encrypted_business_name: encryptedData.encrypted_business_name
-            ? JSON.stringify(encryptedData.encrypted_business_name)
-            : null,
-          encrypted_email: encryptedData.encrypted_email
-            ? JSON.stringify(encryptedData.encrypted_email)
-            : null,
-          encryption_key_hash: encryptionKeyHash,
-          subaccount_code: subaccountCode,
-          status: "active",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: "user_id",
-        });
+        .select("id")
+        .eq("user_id", session.user.id)
+        .single();
+
+      const bankingPayload = {
+        user_id: session.user.id,
+        encrypted_account_number: JSON.stringify(encryptedData.encrypted_account_number),
+        encrypted_bank_code: JSON.stringify(encryptedData.encrypted_bank_code),
+        encrypted_bank_name: encryptedData.encrypted_bank_name
+          ? JSON.stringify(encryptedData.encrypted_bank_name)
+          : null,
+        encrypted_business_name: encryptedData.encrypted_business_name
+          ? JSON.stringify(encryptedData.encrypted_business_name)
+          : null,
+        encrypted_email: encryptedData.encrypted_email
+          ? JSON.stringify(encryptedData.encrypted_email)
+          : null,
+        encryption_key_hash: encryptionKeyHash,
+        subaccount_code: subaccountCode,
+        status: "active",
+        updated_at: new Date().toISOString(),
+      };
+
+      // Update if exists, insert if new
+      let error;
+      if (existingRecord?.id) {
+        const result = await supabase
+          .from("banking_subaccounts")
+          .update(bankingPayload)
+          .eq("id", existingRecord.id);
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("banking_subaccounts")
+          .insert({
+            ...bankingPayload,
+            created_at: new Date().toISOString(),
+          });
+        error = result.error;
+      }
 
       if (error) throw new Error(error.message || "Failed to save banking details");
 
