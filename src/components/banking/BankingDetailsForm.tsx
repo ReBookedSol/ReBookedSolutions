@@ -90,11 +90,12 @@ const BankingDetailsForm: React.FC<BankingDetailsFormProps> = ({
         const bankingDetails = await BankingService.getUserBankingDetails(user.id);
 
         if (bankingDetails) {
+          // Use available data - encrypted records may not have plain text fields
           setFormData({
             businessName: bankingDetails.business_name || "",
             email: bankingDetails.email || "",
             bankName: bankingDetails.bank_name || "",
-            accountNumber: bankingDetails.account_number || "",
+            accountNumber: "", // Never prefill encrypted account number
           });
 
           const selectedBank = SOUTH_AFRICAN_BANKS.find(
@@ -103,7 +104,7 @@ const BankingDetailsForm: React.FC<BankingDetailsFormProps> = ({
           setBranchCode(bankingDetails.bank_code || selectedBank?.branchCode || "");
         }
       } catch (error) {
-        toast.error("Failed to load existing banking details");
+        console.warn("Failed to load existing banking details:", error);
       } finally {
         setIsLoading(false);
       }
