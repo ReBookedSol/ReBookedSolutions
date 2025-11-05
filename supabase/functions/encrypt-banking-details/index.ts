@@ -169,7 +169,7 @@ serve(async (req) => {
       )
     }
 
-    const { account_number, bank_code, bank_name, subaccount_code } = body
+    const { account_number, bank_code, bank_name, business_name, email, subaccount_code } = body
 
     if (!account_number || !bank_code) {
       return new Response(
