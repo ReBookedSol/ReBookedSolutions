@@ -189,12 +189,22 @@ serve(async (req) => {
     try {
       const encrypted_account_number = await encryptGCM(account_number, encryptionKey, 1)
       const encrypted_bank_code = await encryptGCM(bank_code, encryptionKey, 1)
-      
+
       let encrypted_bank_name: EncryptedBundle | undefined
+      let encrypted_business_name: EncryptedBundle | undefined
+      let encrypted_email: EncryptedBundle | undefined
       let encrypted_subaccount_code: EncryptedBundle | undefined
 
       if (bank_name) {
         encrypted_bank_name = await encryptGCM(bank_name, encryptionKey, 1)
+      }
+
+      if (business_name) {
+        encrypted_business_name = await encryptGCM(business_name, encryptionKey, 1)
+      }
+
+      if (email) {
+        encrypted_email = await encryptGCM(email, encryptionKey, 1)
       }
 
       if (subaccount_code) {
@@ -210,6 +220,8 @@ serve(async (req) => {
             encrypted_account_number,
             encrypted_bank_code,
             ...(encrypted_bank_name && { encrypted_bank_name }),
+            ...(encrypted_business_name && { encrypted_business_name }),
+            ...(encrypted_email && { encrypted_email }),
             ...(encrypted_subaccount_code && { encrypted_subaccount_code }),
           }
         }),
