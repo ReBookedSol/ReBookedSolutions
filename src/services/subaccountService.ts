@@ -36,14 +36,17 @@ export class SubaccountService {
       // In a real implementation, this would call Paystack API to create subaccount
       // For now, we'll simulate this process and store the data in our database
 
+      // Note: Banking details must be encrypted before storing
+      // This method is deprecated - use BankingDetailsForm and BankingEncryptionService instead
       const { data, error } = await supabase
         .from("banking_subaccounts")
         .insert({
           user_id: sellerId,
           subaccount_code: `ACCT_${sellerId}_${Date.now()}`,
           business_name: subaccountData.business_name,
-          account_number: subaccountData.account_number,
-          bank_code: subaccountData.settlement_bank,
+          // Banking details must be encrypted - not storing plaintext
+          encrypted_account_number: "", // Must be encrypted
+          encrypted_bank_code: "", // Must be encrypted
           email: "", // Will need to be provided
           status: "active",
         })

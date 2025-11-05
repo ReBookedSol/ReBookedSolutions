@@ -190,8 +190,135 @@ export class PaystackSubaccountService {
   // These functions called Paystack edge functions which are no longer needed
   // Banking details are now managed locally with encryption/decryption
 
-  // Note: getCompleteSubaccountInfo methods have been removed
-  // These methods called Paystack edge functions which are no longer needed
+  // 📋 GET COMPLETE SUBACCOUNT INFO
+  static async getCompleteSubaccountInfo(): Promise<{
+    success: boolean;
+    data?: {
+      subaccount_code: string;
+      banking_details: any;
+      paystack_data: SubaccountData;
+      profile_preferences: any;
+    };
+    error?: string;
+  }> {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        return { success: false, error: "User not authenticated" };
+      }
+
+      // Get profile and subaccount code
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("subaccount_code, preferences")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError || !profileData?.subaccount_code) {
+        return { success: false, error: "No subaccount code found" };
+      }
+
+      // Get banking subaccount details
+      const { data: subaccountData, error: subaccountError } = await supabase
+        .from("banking_subaccounts")
+        .select("*")
+        .eq("subaccount_code", profileData.subaccount_code)
+        .single();
+
+      if (subaccountError) {
+        return { success: false, error: "No banking subaccount found" };
+      }
+
+      // Parse encrypted data for display
+      const paystackData: SubaccountData = {
+        subaccount_code: subaccountData.subaccount_code,
+        business_name: profileData.preferences?.business_name || "",
+        account_number: "••••••••", // Don't return plaintext
+        settlement_bank: subaccountData.bank_code || "",
+        percentage_charge: 0,
+        settlement_schedule: "auto",
+        active: subaccountData.status === "active",
+      };
+
+      return {
+        success: true,
+        data: {
+          subaccount_code: profileData.subaccount_code,
+          banking_details: subaccountData,
+          paystack_data: paystackData,
+          profile_preferences: profileData.preferences,
+        },
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      return { success: false, error: errorMessage };
+    }
+  }
+
+  // 🔄 UPDATE SUBACCOUNT DETAILS
+  static async updateSubaccountDetails(
+    subaccountCode: string,
+    updateData: SubaccountUpdateDetails,
+  ): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+  }> {
+    try {
+      // Banking details (account_number, settlement_bank) must be encrypted via BankingDetailsForm
+      // This method only updates non-sensitive fields
+
+      if (updateData.account_number && updateData.account_number !== "••••••••") {
+        return {
+          success: false,
+          error: "Cannot update banking details here. Please use the Banking Details section to update account information with proper encryption.",
+        };
+      }
+
+      // Only allow non-banking fields to be updated
+      const safeUpdateData: any = {};
+      if (updateData.business_name) safeUpdateData.business_name = updateData.business_name;
+      if (updateData.description) safeUpdateData.description = updateData.description;
+      if (updateData.primary_contact_email) safeUpdateData.primary_contact_email = updateData.primary_contact_email;
+      if (updateData.primary_contact_name) safeUpdateData.primary_contact_name = updateData.primary_contact_name;
+      if (updateData.primary_contact_phone) safeUpdateData.primary_contact_phone = updateData.primary_contact_phone;
+      if (updateData.percentage_charge !== undefined) safeUpdateData.percentage_charge = updateData.percentage_charge;
+      if (updateData.settlement_schedule) safeUpdateData.settlement_schedule = updateData.settlement_schedule;
+
+      // Update profile preferences with safe data
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        return { success: false, error: "User not authenticated" };
+      }
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("preferences")
+        .eq("id", user.id)
+        .single();
+
+      const currentPrefs = profileData?.preferences || {};
+      const updatedPrefs = { ...currentPrefs, ...safeUpdateData };
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ preferences: updatedPrefs })
+        .eq("id", user.id);
+
+      if (error) {
+        return { success: false, error: "Failed to update subaccount details" };
+      }
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      return { success: false, error: errorMessage };
+    }
+  }
 
   // ✅ CHECK IF USER HAS SUBACCOUNT
   static async getUserSubaccountStatus(userId?: string): Promise<{
@@ -283,7 +410,7 @@ export class PaystackSubaccountService {
           bankName:
             preferences.bank_details?.bank_name || "Banking details incomplete",
           accountNumber:
-            preferences.bank_details?.account_number || "Not available",
+            preferences.bank_details?.account_number_masked || "Not available",
           email: profileData?.email || "Please update",
           canEdit: true,
         };
@@ -300,20 +427,22 @@ export class PaystackSubaccountService {
           bankName:
             preferences.bank_details?.bank_name || "Banking details incomplete",
           accountNumber:
-            preferences.bank_details?.account_number || "Not available",
+            preferences.bank_details?.account_number_masked || "Not available",
           email: profileData?.email || "Please update",
           canEdit: true,
         };
       }
 
       // We have both subaccount code and banking details
+      // Note: Don't return plaintext fields - banking data is encrypted
+      const preferences = profileData?.preferences || {};
       return {
         hasSubaccount: true,
         subaccountCode: subaccountData.subaccount_code,
-        businessName: subaccountData.business_name,
-        bankName: subaccountData.bank_name,
-        accountNumber: subaccountData.account_number,
-        email: subaccountData.email,
+        businessName: preferences.business_name || "Banking details setup",
+        bankName: preferences.bank_details?.bank_name || "Bank details encrypted",
+        accountNumber: preferences.bank_details?.account_number_masked || "••••••••",
+        email: profileData?.email || "Not available",
         canEdit: true, // But form will show contact support message
       };
     } catch (error) {

@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/lib/supabase";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Shield,
   CreditCard,
   AlertTriangle,
   CheckCircle,
-  Lock,
   Info,
   ArrowRight,
   Building2,
@@ -17,6 +28,7 @@ import {
   Settings,
   Loader2,
   Copy,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { BankingService } from "@/services/bankingService";
@@ -48,6 +60,8 @@ const BankingProfileTab = () => {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showSetupDialog, setShowSetupDialog] = useState(false);
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeletingBanking, setIsDeletingBanking] = useState(false);
 
   const handleSetupBanking = () => {
     setShowSetupDialog(true);
@@ -103,6 +117,53 @@ const BankingProfileTab = () => {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied to clipboard`);
+  };
+
+  const handleDeleteBankingDetails = async () => {
+    if (!user?.id) {
+      toast.error("User not authenticated");
+      return;
+    }
+
+    setIsDeletingBanking(true);
+    try {
+      const { error } = await supabase
+        .from("banking_subaccounts")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) {
+        toast.error("Failed to delete banking details");
+        console.error("Delete error:", error);
+        return;
+      }
+
+      // Clear profile subaccount code
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          subaccount_code: null,
+          preferences: {
+            banking_setup_complete: false,
+          },
+        })
+        .eq("id", user.id);
+
+      if (profileError) {
+        console.error("Profile update error:", profileError);
+      }
+
+      setShowDeleteDialog(false);
+      setShowFullAccount(false);
+      setDecryptedDetails(null);
+      refreshBankingDetails();
+      toast.success("Banking details deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsDeletingBanking(false);
+    }
   };
 
   const handleEditSuccess = () => {
@@ -312,7 +373,11 @@ const BankingProfileTab = () => {
                     <label className="text-sm font-medium text-book-700">
                       Email
                     </label>
-                    <p className="text-book-900">{bankingDetails.email}</p>
+                    <p className="text-book-900">
+                      {showFullAccount && decryptedDetails?.email
+                        ? decryptedDetails.email
+                        : "••••••••"}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-book-700">
@@ -360,105 +425,17 @@ const BankingProfileTab = () => {
                   <Settings className="h-4 w-4 mr-2" />
                   Update Details
                 </Button>
+                <Button
+                  onClick={() => setShowDeleteDialog(true)}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Details
+                </Button>
               </div>
 
-              {/* Decrypted Details Display */}
-              {showFullAccount && decryptedDetails && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Decrypted Banking Details
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {decryptedDetails.business_name && (
-                      <div>
-                        <label className="font-medium text-blue-800">Business Name:</label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <code className="bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono">
-                            {decryptedDetails.business_name}
-                          </code>
-                          <Button
-                            onClick={() => copyToClipboard(decryptedDetails.business_name!, "Business Name")}
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    {decryptedDetails.email && (
-                      <div>
-                        <label className="font-medium text-blue-800">Email:</label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <code className="bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono">
-                            {decryptedDetails.email}
-                          </code>
-                          <Button
-                            onClick={() => copyToClipboard(decryptedDetails.email!, "Email")}
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                    <div>
-                      <label className="font-medium text-blue-800">Full Account Number:</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono">
-                          {decryptedDetails.account_number}
-                        </code>
-                        <Button
-                          onClick={() => copyToClipboard(decryptedDetails.account_number, "Account Number")}
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="font-medium text-blue-800">Bank Code:</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono">
-                          {decryptedDetails.bank_code}
-                        </code>
-                        <Button
-                          onClick={() => copyToClipboard(decryptedDetails.bank_code, "Bank Code")}
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    {decryptedDetails.subaccount_code && (
-                      <div>
-                        <label className="font-medium text-blue-800">Subaccount Code:</label>
-                        <div className="flex items-center gap-2 mt-1">
-                          <code className="bg-blue-100 px-2 py-1 rounded text-blue-900 font-mono">
-                            {decryptedDetails.subaccount_code}
-                          </code>
-                          <Button
-                            onClick={() => copyToClipboard(decryptedDetails.subaccount_code!, "Subaccount Code")}
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
 
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -611,6 +588,46 @@ const BankingProfileTab = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Delete Banking Details Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Banking Details
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base mt-2">
+              Are you sure you want to delete your banking details? This action cannot be undone. You will need to set up your banking information again to sell books.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isDeletingBanking}
+              className="bg-green-600 text-white border-green-600 hover:bg-green-700 hover:text-white"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteBankingDetails}
+              disabled={isDeletingBanking}
+              className="bg-white text-red-600 border border-red-300 hover:bg-red-50"
+            >
+              {isDeletingBanking ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

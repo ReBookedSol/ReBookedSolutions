@@ -130,10 +130,10 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get banking details for the user - select both encrypted and non-encrypted columns
+    // Get banking details for the user - select only encrypted columns
     const { data: bankingDetails, error: fetchError } = await supabase
       .from('banking_subaccounts')
-      .select('encrypted_account_number, encrypted_bank_code, encrypted_bank_name, encrypted_business_name, encrypted_email, account_number, bank_code, bank_name, business_name, email')
+      .select('encrypted_account_number, encrypted_bank_code, encrypted_bank_name, encrypted_business_name, encrypted_email')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .maybeSingle();
@@ -148,7 +148,7 @@ serve(async (req) => {
 
     console.log('Found banking details for user:', user.id);
 
-    // Check if data is encrypted or not
+    // Check if data is encrypted
     const hasEncryptedData = !!(
       bankingDetails.encrypted_account_number &&
       bankingDetails.encrypted_bank_code &&
@@ -156,37 +156,11 @@ serve(async (req) => {
       bankingDetails.encrypted_business_name
     );
 
-    const hasPlaintextData = !!(
-      bankingDetails.account_number &&
-      bankingDetails.bank_code &&
-      bankingDetails.bank_name &&
-      bankingDetails.business_name
-    );
-
-    if (!hasEncryptedData && !hasPlaintextData) {
-      console.error('No valid banking data (encrypted or plaintext) found for user:', user.id);
+    if (!hasEncryptedData) {
+      console.error('No encrypted banking data found for user:', user.id);
       return new Response(
-        JSON.stringify({ error: 'Banking details incomplete' }),
+        JSON.stringify({ error: 'Banking details incomplete - encryption required' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // If data is not encrypted, return plaintext data
-    if (!hasEncryptedData && hasPlaintextData) {
-      console.log('Returning plaintext banking details for user:', user.id);
-      return new Response(
-        JSON.stringify({
-          success: true,
-          data: {
-            account_number: bankingDetails.account_number,
-            bank_code: bankingDetails.bank_code,
-            bank_name: bankingDetails.bank_name,
-            business_name: bankingDetails.business_name,
-            ...(bankingDetails.email && { email: bankingDetails.email })
-          },
-          encrypted: false
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -226,12 +200,9 @@ serve(async (req) => {
             encryptionKey
           );
         } catch (_) {
-          console.warn('Failed to decrypt email, using plaintext fallback if available');
-          decryptedEmail = bankingDetails.email || null;
+          console.warn('Failed to decrypt email');
+          decryptedEmail = null;
         }
-      } else if (bankingDetails.email) {
-        // Use plaintext email if no encrypted version
-        decryptedEmail = bankingDetails.email;
       }
 
       console.log('✅ Successfully decrypted banking details for user:', user.id);
