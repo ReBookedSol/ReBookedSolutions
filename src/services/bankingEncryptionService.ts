@@ -59,6 +59,8 @@ export class BankingEncryptionService {
             account_number,
             bank_code,
             ...(bank_name && { bank_name }),
+            ...(business_name && { business_name }),
+            ...(email && { email }),
             ...(subaccount_code && { subaccount_code }),
           },
         }
