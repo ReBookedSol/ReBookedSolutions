@@ -371,14 +371,15 @@ export class PaystackSubaccountService {
       }
 
       // We have both subaccount code and banking details
-      // Note: Don't return plaintext account_number - only return masked or indicate encryption required
+      // Note: Don't return plaintext fields - banking data is encrypted
+      const preferences = profileData?.preferences || {};
       return {
         hasSubaccount: true,
         subaccountCode: subaccountData.subaccount_code,
-        businessName: subaccountData.business_name,
-        bankName: subaccountData.bank_name,
-        accountNumber: "••••••••", // Encrypted - show masked value
-        email: subaccountData.email,
+        businessName: preferences.business_name || "Banking details setup",
+        bankName: preferences.bank_details?.bank_name || "Bank details encrypted",
+        accountNumber: preferences.bank_details?.account_number_masked || "••••••••",
+        email: profileData?.email || "Not available",
         canEdit: true, // But form will show contact support message
       };
     } catch (error) {
