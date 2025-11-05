@@ -130,33 +130,67 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get encrypted banking details for the user
+    // Get banking details for the user - select both encrypted and non-encrypted columns
     const { data: bankingDetails, error: fetchError } = await supabase
       .from('banking_subaccounts')
-      .select('encrypted_account_number, encrypted_bank_code, encrypted_bank_name, encrypted_business_name, encrypted_email')
+      .select('encrypted_account_number, encrypted_bank_code, encrypted_bank_name, encrypted_business_name, encrypted_email, account_number, bank_code, bank_name, business_name, email')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .maybeSingle();
 
     if (fetchError || !bankingDetails) {
-      console.error('No banking details found for user:', user.id);
+      console.error('No banking details found for user:', user.id, 'Error:', fetchError);
       return new Response(
         JSON.stringify({ error: 'No banking details found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate required encrypted fields
-    if (!bankingDetails.encrypted_account_number || !bankingDetails.encrypted_bank_code ||
-      !bankingDetails.encrypted_bank_name || !bankingDetails.encrypted_business_name) {
-      console.error('Banking details not properly encrypted for user:', user.id);
+    console.log('Found banking details for user:', user.id);
+
+    // Check if data is encrypted or not
+    const hasEncryptedData = !!(
+      bankingDetails.encrypted_account_number &&
+      bankingDetails.encrypted_bank_code &&
+      bankingDetails.encrypted_bank_name &&
+      bankingDetails.encrypted_business_name
+    );
+
+    const hasPlaintextData = !!(
+      bankingDetails.account_number &&
+      bankingDetails.bank_code &&
+      bankingDetails.bank_name &&
+      bankingDetails.business_name
+    );
+
+    if (!hasEncryptedData && !hasPlaintextData) {
+      console.error('No valid banking data (encrypted or plaintext) found for user:', user.id);
       return new Response(
-        JSON.stringify({ error: 'Banking details not properly stored' }),
+        JSON.stringify({ error: 'Banking details incomplete' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get encryption key
+    // If data is not encrypted, return plaintext data
+    if (!hasEncryptedData && hasPlaintextData) {
+      console.log('Returning plaintext banking details for user:', user.id);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            account_number: bankingDetails.account_number,
+            bank_code: bankingDetails.bank_code,
+            bank_name: bankingDetails.bank_name,
+            business_name: bankingDetails.business_name,
+            ...(bankingDetails.email && { email: bankingDetails.email })
+          },
+          encrypted: false
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get encryption key for decryption
     const encryptionKey = getEncryptionKey()
     if (!encryptionKey) {
       return new Response(
@@ -165,6 +199,7 @@ serve(async (req) => {
       )
     }
 
+    // Decrypt the encrypted data
     try {
       const decryptedAccountNumber = await decryptGCM(
         bankingDetails.encrypted_account_number as unknown as EncryptedBundle,
@@ -191,8 +226,12 @@ serve(async (req) => {
             encryptionKey
           );
         } catch (_) {
-          console.warn('Failed to decrypt email, skipping');
+          console.warn('Failed to decrypt email, using plaintext fallback if available');
+          decryptedEmail = bankingDetails.email || null;
         }
+      } else if (bankingDetails.email) {
+        // Use plaintext email if no encrypted version
+        decryptedEmail = bankingDetails.email;
       }
 
       console.log('✅ Successfully decrypted banking details for user:', user.id);
@@ -206,7 +245,8 @@ serve(async (req) => {
             bank_name: decryptedBankName,
             business_name: decryptedBusinessName,
             ...(decryptedEmail && { email: decryptedEmail })
-          }
+          },
+          encrypted: true
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
