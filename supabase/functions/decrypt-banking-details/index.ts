@@ -200,12 +200,9 @@ serve(async (req) => {
             encryptionKey
           );
         } catch (_) {
-          console.warn('Failed to decrypt email, using plaintext fallback if available');
-          decryptedEmail = bankingDetails.email || null;
+          console.warn('Failed to decrypt email');
+          decryptedEmail = null;
         }
-      } else if (bankingDetails.email) {
-        // Use plaintext email if no encrypted version
-        decryptedEmail = bankingDetails.email;
       }
 
       console.log('✅ Successfully decrypted banking details for user:', user.id);
