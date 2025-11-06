@@ -86,44 +86,6 @@ const FallbackAddressInput: React.FC<FallbackAddressInputProps> = ({
 
   const [selectedAddress, setSelectedAddress] = useState<FallbackAddressData | null>(null);
 
-  // Check network connectivity
-  useEffect(() => {
-    const handleOnline = () => setConnectionStatus('online');
-    const handleOffline = () => setConnectionStatus('offline');
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Initial check
-    setConnectionStatus(navigator.onLine ? 'online' : 'offline');
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  // Auto-fallback logic
-  useEffect(() => {
-    if (autoFallback) {
-      // If Google Maps failed to load or we're offline, switch to manual
-      if (mapsLoadError || connectionStatus === 'offline') {
-        if (!googleMapsAttempted) {
-          console.log('Auto-falling back to manual entry:', { 
-            mapsLoadError: !!mapsLoadError, 
-            offline: connectionStatus === 'offline' 
-          });
-          setForceManual(true);
-          setInputMethod('manual');
-        }
-      }
-      // If Google Maps loads successfully and we're online, prefer it
-      else if (mapsLoaded && connectionStatus === 'online' && !forceManual) {
-        setInputMethod('google');
-      }
-    }
-    setGoogleMapsAttempted(true);
-  }, [mapsLoaded, mapsLoadError, connectionStatus, autoFallback, googleMapsAttempted, forceManual]);
 
   // Determine which input method to show
   const getActiveInputMethod = (): 'google' | 'manual' => {
