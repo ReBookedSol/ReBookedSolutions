@@ -1108,6 +1108,28 @@ Time: ${new Date().toISOString()}
 
           <Separator />
 
+          {/* Platform Processing Fee */}
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-amber-100 rounded">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">
+                Platform Processing Fee
+              </p>
+              <p className="text-sm text-gray-600">
+                Secure payment processing and order management
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="font-semibold">
+                R20.00
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+
           {/* Total */}
           <div className="flex justify-between items-center text-lg font-bold">
             <span>Total</span>

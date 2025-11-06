@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -324,7 +323,7 @@ const BankingProfileTab = () => {
                     <label className="text-sm font-medium text-book-700">
                       Account Number
                     </label>
-                    <div className="flex items-center gap-2">
+                    <div className="space-y-2">
                       <p className="text-book-900 font-mono font-semibold">
                         {showFullAccount && decryptedDetails?.account_number
                           ? decryptedDetails.account_number
@@ -376,7 +375,7 @@ const BankingProfileTab = () => {
                     <p className="text-book-900">
                       {showFullAccount && decryptedDetails?.email
                         ? decryptedDetails.email
-                        : "••••••••"}
+                        : "••��•••••"}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -488,53 +487,22 @@ const BankingProfileTab = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-green-600" />
-              Security & Verification
+              <CreditCard className="h-5 w-5 text-book-600" />
+              Payment Information
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm font-medium text-blue-900">
-                  Paystack Integration
-                </span>
-                <Badge className="bg-blue-100 text-blue-800">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Active
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <span className="text-sm font-medium text-green-900">
-                  Bank Account Verification
-                </span>
-                <Badge
-                  className={
-                    isActive
-                      ? "bg-green-100 text-green-800"
-                      : "bg-orange-100 text-orange-800"
-                  }
-                >
-                  {isActive ? (
-                    <>
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Verified
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      Pending
-                    </>
-                  )}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                <span className="text-sm font-medium text-purple-900">
-                  Split Payment Setup
-                </span>
-                <Badge className="bg-purple-100 text-purple-800">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Configured
-                </Badge>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-blue-900 mb-1">BobPay Payment Processing</p>
+                    <p className="text-sm text-blue-800">
+                      All customer payments are securely processed through BobPay. Funds will be released to your bank account within 2-5 business days after the buyer confirms successful delivery.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>

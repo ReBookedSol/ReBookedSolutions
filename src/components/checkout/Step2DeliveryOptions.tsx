@@ -76,7 +76,7 @@ const Step2DeliveryOptions: React.FC<Step2DeliveryOptionsProps> = ({
 
       setQuotes(quotesResp);
 
-      const DELIVERY_MARKUP = 12; // R12 markup on all BobGo rates
+      const DELIVERY_MARKUP = 15; // R15 markup on all BobGo rates
       const options: DeliveryOption[] = quotesResp.map((q) => ({
         courier: "bobgo",
         service_name: q.service_name,
@@ -245,7 +245,7 @@ const Step2DeliveryOptions: React.FC<Step2DeliveryOptionsProps> = ({
                   const option: DeliveryOption = {
                     courier: "bobgo",
                     service_name: q.service_name,
-                    price: q.cost,
+                    price: q.cost + 15,
                     estimated_days: typeof q.transit_days === "number" ? q.transit_days : 3,
                     description: `${courier}`,
                     zone_type:
@@ -272,10 +272,7 @@ const Step2DeliveryOptions: React.FC<Step2DeliveryOptionsProps> = ({
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                           <span className="font-medium text-gray-900 truncate">{q.service_name}</span>
-                          <span className="text-gray-700">— R{q.cost.toFixed(2)}</span>
-                          {q.price_excl != null && (
-                            <span className="text-gray-600">(excl. VAT: R{q.price_excl.toFixed(2)})</span>
-                          )}
+                          <span className="text-gray-700">— R{(q.cost + 15).toFixed(2)}</span>
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-500">
                           <span className="inline-flex items-center gap-1">
