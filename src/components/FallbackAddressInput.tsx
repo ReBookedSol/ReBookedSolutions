@@ -87,16 +87,7 @@ const FallbackAddressInput: React.FC<FallbackAddressInputProps> = ({
   const [selectedAddress, setSelectedAddress] = useState<FallbackAddressData | null>(null);
 
 
-  // Determine which input method to show
-  const getActiveInputMethod = (): 'google' | 'manual' => {
-    if (forceManual || inputMethod === 'manual') return 'manual';
-    if (connectionStatus === 'offline') return 'manual';
-    if (mapsLoadError) return 'manual';
-    if (!mapsLoaded && inputMethod === 'auto') return 'manual'; // Fallback while loading
-    return 'google';
-  };
-
-  const activeMethod = getActiveInputMethod();
+  const activeMethod = 'manual';
 
   // Handle Google Maps address selection
   const handleGoogleMapsSelect = (addressData: GoogleAddressData) => {
