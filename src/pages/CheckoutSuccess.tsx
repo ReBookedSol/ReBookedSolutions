@@ -33,11 +33,15 @@ const CheckoutSuccess: React.FC = () => {
 
       console.log("Fetching order data for reference:", reference);
 
+      // Clean the reference - remove any suffixes like ":1" that may be appended by payment providers
+      const cleanReference = reference ? reference.split(':')[0] : reference;
+      console.log("Clean reference:", cleanReference);
+
       // Query payment_transactions to find the order by reference
       const { data: paymentTx, error: txError } = await supabase
         .from("payment_transactions")
         .select("*")
-        .eq("reference", reference)
+        .eq("reference", cleanReference)
         .single();
 
       if (txError || !paymentTx) {
