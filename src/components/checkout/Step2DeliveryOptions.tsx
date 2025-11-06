@@ -76,7 +76,7 @@ const Step2DeliveryOptions: React.FC<Step2DeliveryOptionsProps> = ({
 
       setQuotes(quotesResp);
 
-      const DELIVERY_MARKUP = 12; // R12 markup on all BobGo rates
+      const DELIVERY_MARKUP = 15; // R15 markup on all BobGo rates
       const options: DeliveryOption[] = quotesResp.map((q) => ({
         courier: "bobgo",
         service_name: q.service_name,

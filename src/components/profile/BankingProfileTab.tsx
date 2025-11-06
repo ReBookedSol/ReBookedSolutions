@@ -323,7 +323,7 @@ const BankingProfileTab = () => {
                     <label className="text-sm font-medium text-book-700">
                       Account Number
                     </label>
-                    <div className="flex items-center gap-2">
+                    <div className="space-y-2">
                       <p className="text-book-900 font-mono font-semibold">
                         {showFullAccount && decryptedDetails?.account_number
                           ? decryptedDetails.account_number
