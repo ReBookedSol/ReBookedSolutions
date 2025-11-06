@@ -15,7 +15,6 @@ import NetworkErrorBoundary from "./components/NetworkErrorBoundary";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import AuthErrorHandler from "./components/AuthErrorHandler";
-import GoogleMapsProvider from "./contexts/GoogleMapsContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
