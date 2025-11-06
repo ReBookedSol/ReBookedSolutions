@@ -355,43 +355,23 @@ const ModernAddressTab = ({
                   </div>
 
                   {!sameAsPickup && (
-                    useManualInput ? (
-                      <ManualAddressInput
-                        label="Shipping Address"
-                        required
-                        onAddressSelect={handleShippingAddressChange}
-                        defaultValue={
-                          shippingAddress
-                            ? {
-                                formattedAddress: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}`,
-                                street: shippingAddress.street,
-                                city: shippingAddress.city,
-                                province: shippingAddress.province,
-                                postalCode: shippingAddress.postalCode,
-                                country: shippingAddress.country,
-                              }
-                            : undefined
-                        }
-                      />
-                    ) : (
-                      <GoogleMapsAddressAutocomplete
-                        label="Shipping Address"
-                        required
-                        onAddressSelect={handleShippingAddressChange}
-                        defaultValue={
-                          shippingAddress
-                            ? {
-                                formattedAddress: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}`,
-                                street: shippingAddress.street,
-                                city: shippingAddress.city,
-                                province: shippingAddress.province,
-                                postalCode: shippingAddress.postalCode,
-                                country: shippingAddress.country,
-                              }
-                            : undefined
-                        }
-                      />
-                    )
+                    <ManualAddressInput
+                      label="Shipping Address"
+                      required
+                      onAddressSelect={handleShippingAddressChange}
+                      defaultValue={
+                        shippingAddress
+                          ? {
+                              formattedAddress: `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}`,
+                              street: shippingAddress.street,
+                              city: shippingAddress.city,
+                              province: shippingAddress.province,
+                              postalCode: shippingAddress.postalCode,
+                              country: shippingAddress.country,
+                            }
+                          : undefined
+                      }
+                    />
                   )}
 
                   {sameAsPickup && (
