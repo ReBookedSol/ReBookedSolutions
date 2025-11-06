@@ -85,88 +85,20 @@ const PickupAddressInput = ({
         </p>
       </div>
 
-      {/* Address Entry Method Toggle */}
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="manual-entry-pickup"
-          checked={useManualEntry}
-          onCheckedChange={(checked) => setUseManualEntry(checked === true)}
-        />
-        <Label htmlFor="manual-entry-pickup" className="text-sm">
-          Enter address manually instead of using Google Maps
-        </Label>
-      </div>
-
-      {/* Google Maps or Manual Entry */}
-      {!useManualEntry ? (
-        <GoogleMapsAddressAutocomplete
-          onAddressSelect={handleGoogleMapsSelect}
-          placeholder="Enter your pickup address..."
-          required
-          error={error}
-          defaultValue={{
-            formattedAddress: formatAddressForDisplay(address),
-            street: address.street,
-            city: address.city,
-            province: address.province,
-            postalCode: address.postalCode,
-            country: "South Africa",
-          }}
-        />
-      ) : (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="manual-street">Street Address *</Label>
-              <Input
-                id="manual-street"
-                value={address.street}
-                onChange={(e) => handleManualUpdate("street", e.target.value)}
-                placeholder="123 Main Street"
-                required
-                className={error ? "border-red-500" : ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="manual-city">City *</Label>
-              <Input
-                id="manual-city"
-                value={address.city}
-                onChange={(e) => handleManualUpdate("city", e.target.value)}
-                placeholder="Johannesburg"
-                required
-                className={error ? "border-red-500" : ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="manual-province">Province *</Label>
-              <Input
-                id="manual-province"
-                value={address.province}
-                onChange={(e) => handleManualUpdate("province", e.target.value)}
-                placeholder="Gauteng"
-                required
-                className={error ? "border-red-500" : ""}
-              />
-            </div>
-            <div>
-              <Label htmlFor="manual-postal">Postal Code *</Label>
-              <Input
-                id="manual-postal"
-                value={address.postalCode}
-                onChange={(e) =>
-                  handleManualUpdate("postalCode", e.target.value)
-                }
-                placeholder="2000"
-                required
-                className={error ? "border-red-500" : ""}
-              />
-            </div>
-          </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
-        </div>
-      )}
+      {/* Address Entry - Manual Only */}
+      <ManualAddressInput
+        onAddressSelect={handleAddressSelect}
+        placeholder="Enter your pickup address..."
+        required
+        defaultValue={{
+          formattedAddress: formatAddressForDisplay(address),
+          street: address.street,
+          city: address.city,
+          province: address.province,
+          postalCode: address.postalCode,
+          country: "South Africa",
+        }}
+      />
 
       {/* Address Confirmation */}
       {hasSelectedAddress && isAddressComplete && (
