@@ -17,11 +17,8 @@ import {
   Loader2,
   Info,
 } from "lucide-react";
-import GoogleMapsAddressAutocomplete, {
-  AddressData as GoogleAddressData,
-} from "@/components/GoogleMapsAddressAutocomplete";
 import ManualAddressInput from "@/components/ManualAddressInput";
-import { useGoogleMaps } from "@/contexts/GoogleMapsContext";
+import type { AddressData as GoogleAddressData } from "@/components/ManualAddressInput";
 import { AddressData, Address } from "@/types/address";
 import { handleAddressError } from "@/utils/errorDisplayUtils";
 
