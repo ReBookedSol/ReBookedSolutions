@@ -38,7 +38,7 @@ const CheckoutPending: React.FC = () => {
         .from("payment_transactions")
         .select("*, orders(*)")
         .eq("reference", cleanReference)
-        .single();
+        .maybeSingle();
 
       if (txError) {
         console.error("Payment transaction not found:", txError);
