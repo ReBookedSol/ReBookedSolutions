@@ -220,6 +220,14 @@ function App() {
                         element={<CheckoutSuccess />}
                       />
                       <Route
+                        path="/checkout/pending"
+                        element={<CheckoutPending />}
+                      />
+                      <Route
+                        path="/checkout/cancel"
+                        element={<CheckoutCancel />}
+                      />
+                      <Route
                         path="/notifications"
                         element={
                           <ProtectedRoute>
