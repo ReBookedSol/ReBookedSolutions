@@ -45,11 +45,6 @@ const ModernAddressTab = ({
   const [sameAsPickup, setSameAsPickup] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Check Google Maps availability
-  const { isLoaded: mapsLoaded, loadError } = useGoogleMaps();
-  // Prefer manual input on mobile for faster responsiveness; also fall back if maps not ready
-  const useManualInput = typeof window !== 'undefined' && window.innerWidth < 640 ? true : (!mapsLoaded || !!loadError);
-
   useEffect(() => {
     if (addressData) {
       setPickupAddress(addressData.pickup_address);
