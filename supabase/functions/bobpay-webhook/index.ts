@@ -95,8 +95,8 @@ Deno.serve(async (req) => {
 
     // Get client IP for verification
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-                     req.headers.get('x-real-ip') ||
-                     'unknown';
+      req.headers.get('x-real-ip') ||
+      'unknown';
 
     console.log('Webhook received from IP:', clientIp);
 
@@ -152,15 +152,20 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Find the order by custom_payment_id (which should be our order_id)
+    // Find the order by payment_reference (which should be our custom_payment_id)
     const { data: orders, error: orderError } = await supabaseClient
       .from('orders')
       .select('*')
-      .eq('id', webhookData.custom_payment_id)
-      .single();
+      .eq('payment_reference', webhookData.custom_payment_id)
+      .maybeSingle();
 
     if (orderError) {
       console.error('Order not found:', orderError);
+      return new Response('Order not found', { status: 404 });
+    }
+
+    if (!orders) {
+      console.error('No order found for payment_reference:', webhookData.custom_payment_id);
       return new Response('Order not found', { status: 404 });
     }
 
