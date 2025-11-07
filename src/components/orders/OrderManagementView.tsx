@@ -100,9 +100,8 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
           id, buyer_id, seller_id, status, delivery_status, created_at, updated_at,
           cancelled_at, cancellation_reason, tracking_number, tracking_data,
           selected_courier_name, selected_service_name, total_amount, delivery_data,
-          book:books(id, title, author, price, image_url, additional_images),
-          buyer:profiles!buyer_id(id, full_name, name, email),
-          seller:profiles!seller_id(id, full_name, name, email)
+          buyer_full_name, buyer_email, seller_full_name, seller_email,
+          book:books(id, title, author, price, image_url, additional_images)
         `)
         .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
@@ -114,7 +113,23 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
       }
 
       // Filter out obvious test/demo orders by missing real book data
-      const realOrders = (data || []).filter((o: any) => !!(o.book?.title));
+      const realOrders = (data || []).map((o: any) => ({
+        ...o,
+        // Map buyer/seller fields to match the Order type
+        buyer: o.buyer_id ? {
+          id: o.buyer_id,
+          full_name: o.buyer_full_name,
+          name: o.buyer_full_name,
+          email: o.buyer_email,
+        } : null,
+        seller: o.seller_id ? {
+          id: o.seller_id,
+          full_name: o.seller_full_name,
+          name: o.seller_full_name,
+          email: o.seller_email,
+        } : null,
+      })).filter((o: any) => !!(o.book?.title));
+
       setOrders(realOrders as Order[]);
     } catch (err: any) {
       logError("Error fetching orders (catch block)", err);
