@@ -37,11 +37,11 @@ const CheckoutSuccess: React.FC = () => {
       const cleanReference = reference ? reference.split(':')[0] : reference;
       console.log("Clean reference:", cleanReference);
 
-      // Fetch the order directly from orders table using order_id
+      // Fetch the order directly from orders table using payment_reference
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .select("*")
-        .eq("order_id", cleanReference)
+        .eq("payment_reference", cleanReference)
         .maybeSingle();
 
       if (orderError || !order) {
