@@ -1032,19 +1032,6 @@ Time: ${new Date().toISOString()}
             console.warn("Failed to update order status:", updateError);
           }
 
-          // Mark book as sold
-          const { error: bookError } = await supabase
-            .from("books")
-            .update({
-              sold: true,
-              availability: "sold",
-              sold_at: new Date().toISOString(),
-            })
-            .eq("id", bookItem.book_id);
-
-          if (bookError) {
-            console.warn("Failed to mark book as sold:", bookError);
-          }
 
           // Create order confirmation data using the database order
           const orderConfirmation = {

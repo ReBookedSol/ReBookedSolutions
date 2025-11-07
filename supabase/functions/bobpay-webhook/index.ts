@@ -192,7 +192,7 @@ Deno.serve(async (req) => {
         .from('orders')
         .update({
           payment_status: 'paid',
-          status: 'paid',
+          status: 'pending_commit',
           updated_at: new Date().toISOString(),
         })
         .eq('id', orders.id);
@@ -201,13 +201,46 @@ Deno.serve(async (req) => {
         console.error('Error updating order:', orderUpdateError);
       }
 
+      // Mark book as sold
+      const bookId = orders.book_id || (orders.items?.[0]?.book_id);
+      if (bookId) {
+        const { error: bookUpdateError } = await supabaseClient
+          .from('books')
+          .update({
+            sold: true,
+            availability: 'sold',
+            sold_at: new Date().toISOString(),
+            sold_quantity: 1,
+          })
+          .eq('id', bookId);
+
+        if (bookUpdateError) {
+          console.error('Error marking book as sold:', bookUpdateError);
+        } else {
+          console.log('✅ Book marked as sold:', bookId);
+        }
+      }
+
+      // Get buyer and seller info for email notifications
+      const { data: buyerProfile } = await supabaseClient
+        .from('profiles')
+        .select('email, full_name, name')
+        .eq('id', orders.buyer_id)
+        .single();
+
+      const { data: sellerProfile } = await supabaseClient
+        .from('profiles')
+        .select('email, full_name, name')
+        .eq('id', orders.seller_id)
+        .single();
+
       // Create notification for buyer
       await supabaseClient.from('order_notifications').insert({
         order_id: orders.id,
         user_id: orders.buyer_id,
         type: 'payment_success',
         title: 'Payment Successful',
-        message: `Your payment of R${webhookData.paid_amount.toFixed(2)} has been confirmed.`,
+        message: `Your payment of R${webhookData.paid_amount.toFixed(2)} has been confirmed. Waiting for seller confirmation.`,
       });
 
       // Create notification for seller
@@ -218,6 +251,110 @@ Deno.serve(async (req) => {
         title: 'New Order Received',
         message: `You have received a new order. Please commit within 48 hours.`,
       });
+
+      // Queue emails for buyer and seller
+      const bookTitle = orders.items?.[0]?.book_title || 'Book';
+      const buyerEmail = buyerProfile?.email || orders.buyer_email;
+      const buyerName = buyerProfile?.full_name || buyerProfile?.name || 'Buyer';
+      const sellerEmail = sellerProfile?.email;
+      const sellerName = sellerProfile?.full_name || sellerProfile?.name || 'Seller';
+
+      if (buyerEmail) {
+        await supabaseClient.from('mail_queue').insert({
+          to_email: buyerEmail,
+          subject: '📚 Payment Confirmed - Waiting for Seller Response',
+          html_content: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background-color: #00b894; color: white; padding: 20px; text-align: center;">
+                <h1 style="margin: 0;">📚 Payment Confirmed!</h1>
+              </div>
+              <div style="padding: 30px; background-color: #f8f9fa;">
+                <p>Hello ${buyerName},</p>
+                <p><strong>Thank you for your purchase!</strong> Your payment has been processed successfully.</p>
+
+                <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="color: #00b894; margin-top: 0;">Order Summary</h3>
+                  <p><strong>Book:</strong> ${bookTitle}</p>
+                  <p><strong>Seller:</strong> ${sellerName}</p>
+                  <p><strong>Order ID:</strong> ${orders.id}</p>
+                  <p><strong>Amount Paid:</strong> R${webhookData.paid_amount.toFixed(2)}</p>
+                </div>
+
+                <div style="background-color: #e8f4fd; border: 1px solid #74b9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="color: #0984e3; margin-top: 0;">⏳ Waiting for Seller Confirmation</h3>
+                  <p>The seller has 48 hours to confirm your order. Once confirmed, your book will be shipped immediately.</p>
+                </div>
+
+                <p><strong>What happens next:</strong></p>
+                <ul>
+                  <li>The seller will confirm your order within 48 hours</li>
+                  <li>Once confirmed, your book will be shipped immediately</li>
+                  <li>You'll receive tracking information via SMS/email</li>
+                  <li>Delivery typically takes 1-3 business days</li>
+                </ul>
+
+                <p><strong>If the seller doesn't confirm:</strong> You'll receive a full automatic refund within 48 hours.</p>
+
+                <p>Thank you for choosing ReBooked Solutions!</p>
+              </div>
+              <div style="background-color: #f3fef7; color: #1f4e3d; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e5e7eb;">
+                <p>This is an automated message. Please do not reply to this email.</p>
+                <p>For assistance: <a href="mailto:support@rebookedsolutions.co.za">support@rebookedsolutions.co.za</a></p>
+              </div>
+            </div>
+          `,
+          priority: 'high',
+          email_type: 'buyer_payment_confirmed',
+        });
+      }
+
+      if (sellerEmail) {
+        await supabaseClient.from('mail_queue').insert({
+          to_email: sellerEmail,
+          subject: '🚨 NEW SALE - Confirm Your Book Sale (48hr deadline)',
+          html_content: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background-color: #e74c3c; color: white; padding: 20px; text-align: center;">
+                <h1 style="margin: 0;">🚨 New Book Sale - Action Required!</h1>
+              </div>
+              <div style="padding: 30px; background-color: #f8f9fa;">
+                <p>Hello ${sellerName},</p>
+                <p><strong>Great news!</strong> Someone just purchased your book and is waiting for confirmation.</p>
+
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="color: #e17055; margin-top: 0;">⏰ ACTION REQUIRED WITHIN 48 HOURS</h3>
+                  <p><strong>You must confirm this sale to proceed with the order.</strong></p>
+                </div>
+
+                <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="color: #2d3436; margin-top: 0;">Sale Details</h3>
+                  <p><strong>Book:</strong> ${bookTitle}</p>
+                  <p><strong>Buyer:</strong> ${buyerName}</p>
+                  <p><strong>Order ID:</strong> ${orders.id}</p>
+                </div>
+
+                <p><strong>What happens next:</strong></p>
+                <ul>
+                  <li>Log in to your ReBooked Solutions account</li>
+                  <li>Click "Commit Sale" for this book</li>
+                  <li>We'll arrange pickup from your location</li>
+                  <li>You'll receive payment after delivery</li>
+                </ul>
+
+                <p style="color: #e17055;"><strong>Important:</strong> If you don't confirm within 48 hours, the order will be automatically cancelled and refunded.</p>
+
+                <p>Thank you for using ReBooked Solutions!</p>
+              </div>
+              <div style="background-color: #f3fef7; color: #1f4e3d; padding: 20px; text-align: center; font-size: 12px; border-top: 1px solid #e5e7eb;">
+                <p>This is an automated message. Please do not reply to this email.</p>
+                <p>For assistance: <a href="mailto:support@rebookedsolutions.co.za">support@rebookedsolutions.co.za</a></p>
+              </div>
+            </div>
+          `,
+          priority: 'urgent',
+          email_type: 'seller_pending_commit',
+        });
+      }
     } else if (webhookData.status === 'failed' || webhookData.status === 'cancelled') {
       await supabaseClient
         .from('orders')
