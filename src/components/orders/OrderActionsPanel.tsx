@@ -77,23 +77,12 @@ const OrderActionsPanel: React.FC<OrderActionsPanelProps> = ({
   const handleBuyerCancel = async () => {
     setIsLoading(true);
     try {
-      // If order has NOT been committed yet, trigger refund-management directly and set status to "declined"
+      // If order has NOT been committed yet, use BobPayRefund for uncommitted orders
       if (order.status !== "committed") {
-        const { data: orderRow, error: orderFetchError } = await supabase
-          .from("orders")
-          .select("payment_reference")
-          .eq("id", order.id)
-          .maybeSingle();
-
-        if (orderFetchError || !orderRow?.payment_reference) {
-          throw new Error("Payment reference not found for refund");
-        }
-
-        const { data: refundData, error: refundError } = await supabase.functions.invoke("refund-management", {
+        const { data: refundData, error: refundError } = await supabase.functions.invoke("bobpay-refund", {
           body: {
-            payment_reference: orderRow.payment_reference,
-            reason: cancelReason || "Cancelled by Buyer",
             order_id: order.id,
+            reason: cancelReason || "Cancelled by Buyer",
           },
         });
 
@@ -103,7 +92,7 @@ const OrderActionsPanel: React.FC<OrderActionsPanelProps> = ({
 
         const { error: updateError } = await supabase
           .from("orders")
-          .update({ status: "declined" })
+          .update({ status: "cancelled" })
           .eq("id", order.id);
 
         if (updateError) throw updateError;
@@ -114,7 +103,7 @@ const OrderActionsPanel: React.FC<OrderActionsPanelProps> = ({
         return;
       }
 
-      // Otherwise, follow existing cancellation flow (shipment already in process)
+      // For committed orders with tracking, use cancel-order-with-refund to cancel the shipment
       const result = await OrderCancellationService.cancelDeliveryByBuyer(
         order.id,
         cancelReason || "Cancelled by Buyer",
