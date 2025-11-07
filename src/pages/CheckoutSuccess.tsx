@@ -56,19 +56,28 @@ const CheckoutSuccess: React.FC = () => {
       const paymentReference = order.payment_reference || cleanReference;
       console.log("Payment reference from order:", paymentReference);
 
+      // Extract book info from items array
+      const bookItem = order.items?.[0];
+
+      // Extract delivery info from delivery_data
+      const deliveryData = order.delivery_data;
+
+      // Extract metadata (includes buyer_id and platform fee)
+      const metadata = order.metadata || {};
+
       // Construct OrderConfirmation object from order data
       const confirmation: OrderConfirmation = {
-        order_id: order.order_id || order.id,
+        order_id: order.payment_reference || order.id,
         payment_reference: paymentReference,
-        book_id: order.book_id,
+        book_id: bookItem?.book_id || "",
         seller_id: order.seller_id,
-        buyer_id: order.buyer_id,
-        book_title: order.book_title || "Book",
-        book_price: order.book_price || 0,
-        delivery_method: order.delivery_option || "Standard",
-        delivery_price: order.selected_shipping_cost || 0,
-        platform_fee: 20,
-        total_paid: order.total_amount || 0,
+        buyer_id: metadata.buyer_id || "",
+        book_title: bookItem?.book_title || "Book",
+        book_price: bookItem?.price ? bookItem.price / 100 : 0, // Convert from kobo to rands
+        delivery_method: deliveryData?.delivery_method || "Standard",
+        delivery_price: deliveryData?.delivery_price ? deliveryData.delivery_price / 100 : 0, // Convert from kobo to rands
+        platform_fee: metadata.platform_fee ? metadata.platform_fee / 100 : 20, // Convert from kobo to rands
+        total_paid: order.amount ? order.amount / 100 : 0, // Convert from kobo to rands
         created_at: order.created_at || new Date().toISOString(),
         status: order.status || "pending",
       };
