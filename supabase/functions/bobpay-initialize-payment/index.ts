@@ -94,23 +94,33 @@ Deno.serve(async (req) => {
 
     // Store transaction in database if order_id provided
     if (paymentData.order_id) {
+      // Convert amount to cents (bigint expects integer)
+      const amountInCents = Math.round(paymentData.amount * 100);
+
       const { error: txError } = await supabaseClient
         .from('payment_transactions')
         .insert({
           order_id: paymentData.order_id,
           user_id: paymentData.buyer_id || user.id,
           reference: paymentData.custom_payment_id,
-          amount: paymentData.amount,
+          amount: amountInCents,
           status: 'pending',
           payment_method: 'bobpay',
-          paystack_response: {
+          bobpay_response: {
             ...bobpayData,
             provider: 'bobpay',
+          },
+          metadata: {
+            item_name: paymentData.item_name,
+            item_description: paymentData.item_description,
+            email: paymentData.email,
+            mobile_number: paymentData.mobile_number,
           },
         });
 
       if (txError) {
         console.error('Error storing transaction:', txError);
+        throw new Error(`Failed to store transaction: ${txError.message}`);
       }
     }
 
