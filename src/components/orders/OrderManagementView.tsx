@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import OrderActionsPanel from "./OrderActionsPanel";
 import { Order as BaseOrder } from "@/services/orderCancellationService";
 import { logError } from "@/utils/errorLogging";
+import OrderCompletionCard from "./OrderCompletionCard";
 
 // Extend the base Order shape with additional fields used in UI
 export type Order = BaseOrder & {
