@@ -99,6 +99,7 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
       curriculum: (bookData as any).curriculum || null,
       province: province,
       seller_subaccount_code: paystackSubaccountCode,
+      affiliate_ref_id: affiliateRefId,
       requires_banking_setup: false,
       // Quantity fields at creation
       initial_quantity: quantity,
