@@ -19,6 +19,7 @@ export const createBook = async (bookData: BookFormData): Promise<Book> => {
     let province = null;
     let pickupAddress = null;
     let paystackSubaccountCode = null;
+    let affiliateRefId = null;
 
     try {
       // Get encrypted address from profile - required for book creation
