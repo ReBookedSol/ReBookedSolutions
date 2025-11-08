@@ -293,36 +293,30 @@ const Step3Payment: React.FC<Step3PaymentProps> = ({
         selected_shipping_cost: orderSummary.delivery.price,
       };
 
-      // Invoke create-order and process-affiliate-earning in parallel
-      const [createOrderResult, affiliateResult] = await Promise.all([
-        supabase.functions.invoke('create-order', {
-          body: createOrderPayload,
-        }),
-        // Process affiliate earning will be called after we get the order_id
-        // So we'll handle this separately below
-        Promise.resolve(null)
-      ]);
+      // Create order first
+      const { data: createData, error: createErr } = await supabase.functions.invoke('create-order', {
+        body: createOrderPayload,
+      });
 
-      const { data: createData, error: createErr } = createOrderResult;
       if (createErr || !createData?.success || !createData?.order?.id) {
         throw new Error(createErr?.message || 'Failed to create order');
       }
 
-      // Now invoke process-affiliate-earning with the order_id
-      const { error: affiliateErr } = await supabase.functions.invoke('process-affiliate-earning', {
+      console.log('✅ Order created successfully:', createData.order.id);
+
+      // Invoke process-affiliate-earning immediately after order creation (in parallel/background)
+      supabase.functions.invoke('process-affiliate-earning', {
         body: {
           book_id: orderSummary.book.id,
           order_id: createData.order.id,
           seller_id: orderSummary.book.seller_id,
         },
-      });
-
-      if (affiliateErr) {
-        console.warn('Warning: Failed to process affiliate earning:', affiliateErr);
-        // Don't throw - affiliate processing is secondary to order creation
-      } else {
+      }).then(() => {
         console.log('✅ Affiliate earning processed successfully');
-      }
+      }).catch((affiliateErr) => {
+        console.warn('Warning: Failed to process affiliate earning:', affiliateErr);
+        // Non-blocking error - affiliate processing is secondary
+      });
 
       onPaymentSuccess({
         order_id: createData.order.id,
