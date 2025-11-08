@@ -11,25 +11,37 @@ const ClearNotifications: React.FC = () => {
 
   const clearAllNotifications = async () => {
     setIsClearing(true);
-    
+
     try {
-      // Delete all notifications from the database
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete everything except non-existent ID
-      
-      if (error) {
-        throw error;
+      // Delete all notifications from both tables
+      const [notifResult, orderNotifResult] = await Promise.all([
+        supabase
+          .from('notifications')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000'), // Delete everything except non-existent ID
+        supabase
+          .from('order_notifications')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000'), // Delete everything except non-existent ID
+      ]);
+
+      if (notifResult.error) {
+        console.error('Error clearing notifications table:', notifResult.error);
+        throw notifResult.error;
       }
-      
+
+      if (orderNotifResult.error) {
+        console.error('Error clearing order_notifications table:', orderNotifResult.error);
+        throw orderNotifResult.error;
+      }
+
       toast.success('All notifications cleared successfully!');
-      
+
       // Refresh the page after a delay to let the user see the success message
       setTimeout(() => {
         window.location.href = '/notifications';
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error clearing notifications:', error);
       toast.error('Failed to clear notifications');

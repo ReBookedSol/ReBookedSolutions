@@ -54,7 +54,7 @@ const notificationCache = new Map<string, { data: Notification[]; timestamp: num
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 /**
- * Get notifications for a user with caching
+ * Get notifications for a user with caching (from both notifications and order_notifications tables)
  */
 export async function getNotifications(userId: string): Promise<Notification[]> {
   try {
@@ -64,29 +64,48 @@ export async function getNotifications(userId: string): Promise<Notification[]> 
       return cached.data;
     }
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(50);
+    // Fetch from both tables in parallel
+    const [regularNotif, orderNotif] = await Promise.all([
+      supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('order_notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50),
+    ]);
 
-    if (error) {
-      const serializedError = serializeError(error);
-      console.error('Error fetching notifications:', serializedError);
-      const safeMessage = getSafeErrorMessage(error, 'Failed to fetch notifications');
-      throw new Error(safeMessage);
+    if (regularNotif.error) {
+      const serializedError = serializeError(regularNotif.error);
+      console.error('Error fetching regular notifications:', serializedError);
     }
 
-    const notifications = data || [];
+    if (orderNotif.error) {
+      const serializedError = serializeError(orderNotif.error);
+      console.error('Error fetching order notifications:', serializedError);
+    }
+
+    const regularData = regularNotif.data || [];
+    const orderData = orderNotif.data || [];
+
+    // Merge both notification arrays and sort by created_at
+    const allNotifications = [...regularData, ...orderData]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 100); // Limit to 100 total notifications
 
     // Update cache
     notificationCache.set(userId, {
-      data: notifications,
+      data: allNotifications,
       timestamp: Date.now()
     });
 
-    return notifications;
+    console.log(`📨 Loaded ${allNotifications.length} notifications (${regularData.length} regular, ${orderData.length} order) for user ${userId}`);
+    return allNotifications;
   } catch (error) {
     const serializedError = serializeError(error);
     console.error('Failed to get notifications:', serializedError);
@@ -111,23 +130,36 @@ export async function addNotification(data: CreateNotificationData): Promise<boo
 }
 
 /**
- * Mark a notification as read
+ * Mark a notification as read (tries both notifications and order_notifications tables)
  */
 export async function markNotificationAsRead(notificationId: string): Promise<boolean> {
   try {
-    const { error } = await supabase
+    // Try to update in notifications table first
+    const { error: notifError } = await supabase
       .from('notifications')
       .update({ read: true })
       .eq('id', notificationId);
 
-    if (error) {
-      const serializedError = serializeError(error);
-      console.error('Failed to mark notification as read:', serializedError);
-      return false;
+    if (!notifError) {
+      console.log(`📖 Marked notification ${notificationId} as read in notifications table`);
+      return true;
     }
 
-    console.log(`📖 Marked notification ${notificationId} as read`);
-    return true;
+    // If it fails, try order_notifications table
+    const { error: orderNotifError } = await supabase
+      .from('order_notifications')
+      .update({ read: true })
+      .eq('id', notificationId);
+
+    if (!orderNotifError) {
+      console.log(`📖 Marked notification ${notificationId} as read in order_notifications table`);
+      return true;
+    }
+
+    // If both fail, log the error
+    const serializedError = serializeError(orderNotifError);
+    console.error('Failed to mark notification as read in either table:', serializedError);
+    return false;
   } catch (error) {
     const serializedError = serializeError(error);
     console.error('Error marking notification as read:', serializedError);

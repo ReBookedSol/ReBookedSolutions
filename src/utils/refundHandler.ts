@@ -55,7 +55,7 @@ export const detectPaymentProvider = async (
 };
 
 /**
- * Handle refund intelligently based on payment provider
+ * Handle refund intelligently based on payment provider and order status
  */
 export const handleIntelligentRefund = async (
   refundRequest: RefundRequest
@@ -63,17 +63,47 @@ export const handleIntelligentRefund = async (
   try {
     const { order_id, reason } = refundRequest;
 
-    // Detect payment provider
-    const provider = await detectPaymentProvider(order_id);
-    console.log('Detected payment provider:', provider);
+    // Get order details to check status
+    const { data: orderData, error: orderError } = await supabase
+      .from('orders')
+      .select('status, payment_reference')
+      .eq('id', order_id)
+      .single();
+
+    if (orderError || !orderData) {
+      throw new Error('Order not found');
+    }
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
       throw new Error('Not authenticated');
     }
 
+    // For committed orders, use the cancel-order-with-refund function
+    if (orderData.status === 'committed') {
+      const { data, error } = await supabase.functions.invoke('cancel-order-with-refund', {
+        body: {
+          order_id,
+          reason: reason || 'Order cancelled by user',
+        },
+      });
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Cancellation failed');
+      }
+
+      return {
+        success: true,
+        message: 'Order cancelled and refund processed successfully',
+      };
+    }
+
+    // For uncommitted orders, detect payment provider and use appropriate refund function
+    const provider = await detectPaymentProvider(order_id);
+    console.log('Detected payment provider:', provider);
+
     if (provider === 'bobpay') {
-      // Use BobPay refund
+      // Use BobPay refund for uncommitted BobPay orders
       const { data, error } = await supabase.functions.invoke('bobpay-refund', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -93,14 +123,8 @@ export const handleIntelligentRefund = async (
         message: `Refund processed successfully: ${data.data?.message || 'Refund in progress'}`,
       };
     } else if (provider === 'paystack') {
-      // Use Paystack refund (existing refund-management function)
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select('payment_reference')
-        .eq('id', order_id)
-        .single();
-
-      if (orderError || !orderData?.payment_reference) {
+      // Use Paystack refund (existing refund-management function) for uncommitted Paystack orders
+      if (!orderData.payment_reference) {
         throw new Error('Payment reference not found');
       }
 

@@ -571,13 +571,43 @@ const NotificationsNew = () => {
         return;
       }
 
-      // First, let's verify the notification exists
-      console.log('🔍 Checking if notification exists...');
-      const { data: existingNotification, error: checkError } = await supabase
+      // First, let's verify the notification exists - check both tables
+      console.log('🔍 Checking if notification exists in notifications or order_notifications...');
+
+      let existingNotification = null;
+      let notificationTable = 'notifications';
+      let checkError = null;
+
+      // Try notifications table first
+      const { data: regularNotif, error: regularError } = await supabase
         .from('notifications')
         .select('id, user_id, title')
         .eq('id', notificationId)
         .single();
+
+      if (!regularError && regularNotif) {
+        existingNotification = regularNotif;
+        notificationTable = 'notifications';
+        console.log('✅ Notification found in notifications table:', existingNotification);
+      } else if (regularError?.code !== 'PGRST116') {
+        // Only treat as error if it's not "not found"
+        checkError = regularError;
+      } else {
+        // Not found in notifications, try order_notifications
+        const { data: orderNotif, error: orderError } = await supabase
+          .from('order_notifications')
+          .select('id, user_id, title')
+          .eq('id', notificationId)
+          .single();
+
+        if (!orderError && orderNotif) {
+          existingNotification = orderNotif;
+          notificationTable = 'order_notifications';
+          console.log('✅ Notification found in order_notifications table:', existingNotification);
+        } else if (orderError?.code !== 'PGRST116') {
+          checkError = orderError;
+        }
+      }
 
       if (checkError) {
         const safeErrorMessage = getSafeErrorMessage(checkError, 'Unknown error checking notification');
@@ -586,19 +616,16 @@ const NotificationsNew = () => {
           code: checkError.code,
           details: checkError.details,
           hint: checkError.hint,
-          originalError: checkError
         });
         toast.error(`Notification not found: ${safeErrorMessage}`);
         return;
       }
 
       if (!existingNotification) {
-        console.error('❌ Notification not found in database');
+        console.error('❌ Notification not found in either notifications or order_notifications table');
         toast.error('Notification not found');
         return;
       }
-
-      console.log('✅ Notification found:', existingNotification);
 
       // Verify ownership
       if (existingNotification.user_id !== user.id) {
@@ -607,25 +634,25 @@ const NotificationsNew = () => {
         return;
       }
 
-      // Now delete from database
-      console.log('🗑️ Attempting to delete notification from database...');
+      // Delete from the correct table
+      console.log(`🗑️ Attempting to delete notification from ${notificationTable} table...`);
       const { data: deleteData, error: deleteError } = await supabase
-        .from('notifications')
+        .from(notificationTable)
         .delete()
         .eq('id', notificationId)
         .eq('user_id', user.id); // Double-check ownership in delete query
 
-      console.log('Delete operation result:', { data: deleteData, error: deleteError });
+      console.log('Delete operation result:', { data: deleteData, error: deleteError, table: notificationTable });
 
       if (deleteError) {
         const safeDeleteErrorMessage = getSafeErrorMessage(deleteError, 'Unknown delete error');
         console.error('❌ Database error deleting notification:', {
           notificationId,
+          table: notificationTable,
           code: deleteError.code,
           message: safeDeleteErrorMessage,
           details: deleteError.details,
           hint: deleteError.hint,
-          originalError: deleteError
         });
 
         // Handle specific error cases
