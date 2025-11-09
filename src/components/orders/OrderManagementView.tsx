@@ -113,7 +113,7 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
       }
 
       // Filter out obvious test/demo orders by missing real book data
-      const realOrders = (data || []).map((o: any) => ({
+      const mappedOrders = (data || []).map((o: any) => ({
         ...o,
         // Map buyer/seller fields to match the Order type
         buyer: o.buyer_id ? {
@@ -129,6 +129,17 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
           email: o.seller_email,
         } : null,
       })).filter((o: any) => !!(o.book?.title));
+
+      // Deduplicate by order id to prevent duplicates
+      const seenIds = new Set<string>();
+      const realOrders = mappedOrders.filter((o: any) => {
+        if (seenIds.has(o.id)) {
+          console.warn("Duplicate order detected and filtered:", o.id);
+          return false;
+        }
+        seenIds.add(o.id);
+        return true;
+      });
 
       setOrders(realOrders as Order[]);
     } catch (err: any) {
@@ -348,7 +359,9 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
 
   const OrderCard: React.FC<{ order: Order; isCollapsible?: boolean }> = ({ order, isCollapsible = false }) => {
     const userRole = getUserRole(order);
-    const isExpanded = expandedOrders[order.id] ?? true;
+    // For collapsible orders (completed/cancelled), default to collapsed (false)
+    // For active orders, default to expanded (true)
+    const isExpanded = isCollapsible ? (expandedOrders[order.id] ?? false) : (expandedOrders[order.id] ?? true);
 
     const handleToggle = () => {
       if (isCollapsible) {
@@ -365,12 +378,22 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
             </div>
             {isCollapsible && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={handleToggle}
                 className="ml-2"
               >
-                {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-1" />
+                    Hide Details
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4 mr-1" />
+                    View More
+                  </>
+                )}
               </Button>
             )}
           </div>
@@ -413,7 +436,7 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
 
             <OrderActionsPanel order={order} userRole={userRole} onOrderUpdate={fetchOrders} />
 
-            {userRole === "buyer" && ["delivered", "completed"].includes(order.status) && (
+            {userRole === "buyer" && (["delivered", "completed"].includes(order.status) || order.delivery_status === "delivered") && (
               <>
                 <Separator />
                 <OrderCompletionCard
