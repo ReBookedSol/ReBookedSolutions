@@ -148,6 +148,7 @@ serve(async (req) => {
               } catch (notifErr) {
                 console.warn("Failed to create delivery notification:", notifErr);
               }
+
             }
 
             try {
