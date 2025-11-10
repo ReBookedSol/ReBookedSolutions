@@ -74,7 +74,7 @@ const BuyersProtectionDialog = ({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="rounded-xl p-6 sm:p-8 shadow-2xl max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="rounded-xl p-4 sm:p-8 shadow-2xl w-[calc(100vw-2rem)] sm:w-full max-w-sm sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-2xl">
             <div className="flex-shrink-0 p-2 bg-emerald-100 rounded-lg">
