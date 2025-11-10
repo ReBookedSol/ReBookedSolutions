@@ -259,7 +259,7 @@ const EnhancedOrderCommitButton: React.FC<EnhancedOrderCommitButtonProps> = ({
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-0 w-[calc(100vw-2rem)] sm:w-full">
+      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:w-full max-w-sm sm:max-w-2xl max-h-[90vh] overflow-y-auto mx-auto">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0" />
