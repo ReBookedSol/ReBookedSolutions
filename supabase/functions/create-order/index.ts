@@ -49,6 +49,43 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
+    // Helper to ensure book is marked sold and quantities adjusted only once
+    async function ensureBookMarkedSold(bookId: string) {
+      try {
+        const { data: bookRow, error: bookRowError } = await supabase
+          .from('books')
+          .select('id, sold, available_quantity, sold_quantity')
+          .eq('id', bookId)
+          .maybeSingle();
+
+        if (bookRowError) {
+          console.warn('⚠️ Failed to fetch book for ensureBookMarkedSold:', bookRowError);
+          return;
+        }
+
+        if (!bookRow) return;
+
+        if (!bookRow.sold) {
+          // Only decrement available_quantity if it's > 0
+          const newAvailable = (typeof bookRow.available_quantity === 'number' && bookRow.available_quantity > 0) ? bookRow.available_quantity - 1 : 0;
+          const newSoldQuantity = (bookRow.sold_quantity || 0) + 1;
+
+          const { error: markError } = await supabase
+            .from('books')
+            .update({ sold: true, available_quantity: newAvailable, sold_quantity: newSoldQuantity, updated_at: new Date().toISOString() })
+            .eq('id', bookId);
+
+          if (markError) {
+            console.warn('⚠️ Failed to mark book as sold in ensureBookMarkedSold:', markError);
+          } else {
+            console.log('✅ ensureBookMarkedSold: book updated');
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ ensureBookMarkedSold unexpected error:', e);
+      }
+    }
+
     // If a payment_reference was provided, check for existing order to make this operation idempotent
     if (requestData.payment_reference) {
       console.log("🔎 Checking for existing order with payment_reference:", requestData.payment_reference);
@@ -64,14 +101,7 @@ serve(async (req) => {
 
       if (existingByRef) {
         console.log('ℹ️ Existing order found by payment_reference. Ensuring book is marked sold and returning existing order.');
-        // Ensure book is marked as sold if not already
-        if (!existingByRef.sold) {
-          try {
-            await supabase.from('books').update({ sold: true, updated_at: new Date().toISOString() }).eq('id', requestData.book_id);
-          } catch (e) {
-            console.warn('⚠️ Failed to mark book as sold during idempotent flow:', e);
-          }
-        }
+        await ensureBookMarkedSold(requestData.book_id);
 
         return new Response(
           JSON.stringify({ success: true, message: 'Order already exists', order: existingByRef }),
@@ -96,15 +126,8 @@ serve(async (req) => {
     }
 
     if (existingCombo) {
-      console.log('ℹ️ Existing active order found for combo. Returning existing order.');
-      // Ensure book marked sold if needed
-      if (!existingCombo.sold) {
-        try {
-          await supabase.from('books').update({ sold: true, updated_at: new Date().toISOString() }).eq('id', requestData.book_id);
-        } catch (e) {
-          console.warn('⚠️ Failed to mark book as sold during combo idempotent flow:', e);
-        }
-      }
+      console.log('ℹ️ Existing active order found for combo. Ensuring book is marked sold and returning existing order.');
+      await ensureBookMarkedSold(requestData.book_id);
 
       return new Response(
         JSON.stringify({ success: true, message: 'Order already exists', order: existingCombo }),
