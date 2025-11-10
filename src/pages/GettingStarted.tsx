@@ -22,6 +22,8 @@ import {
   BookOpen,
   MessageCircle,
   ChevronRight,
+  AlertCircle,
+  Phone,
 } from "lucide-react";
 
 const TimelineStep = ({
