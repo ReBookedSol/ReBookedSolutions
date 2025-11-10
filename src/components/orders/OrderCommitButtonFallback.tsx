@@ -199,7 +199,7 @@ const OrderCommitButtonFallback: React.FC<OrderCommitButtonFallbackProps> = ({
           </Button>
         </AlertDialogTrigger>
 
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[calc(100vw-2rem)] sm:w-full max-w-sm sm:max-w-md mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-amber-500" />
