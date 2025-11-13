@@ -71,7 +71,6 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [expandedOrders, setExpandedOrders] = useState<CollapsibleOrderState>({});
 
   useEffect(() => {
@@ -79,15 +78,6 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
       fetchOrders();
     }
   }, [user]);
-
-  // Update current time every 5 seconds for live countdown
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const fetchOrders = async () => {
     if (!user) return;
