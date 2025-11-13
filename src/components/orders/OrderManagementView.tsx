@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -178,6 +178,10 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
       [orderId]: !prev[orderId]
     }));
   };
+
+  const handleFeedbackSubmitted = useCallback(() => {
+    fetchOrders();
+  }, []);
 
   const OrderHeaderDetails: React.FC<{ order: Order }> = ({ order }) => {
     const role = getUserRole(order);
@@ -444,9 +448,7 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
                   bookTitle={order.book?.title || "Book"}
                   sellerName={order.seller?.name || "Seller"}
                   deliveredDate={order.updated_at}
-                  onFeedbackSubmitted={() => {
-                    fetchOrders();
-                  }}
+                  onFeedbackSubmitted={handleFeedbackSubmitted}
                 />
               </>
             )}
