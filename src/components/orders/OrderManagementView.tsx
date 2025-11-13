@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -71,7 +71,6 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [expandedOrders, setExpandedOrders] = useState<CollapsibleOrderState>({});
 
   useEffect(() => {
@@ -79,15 +78,6 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
       fetchOrders();
     }
   }, [user]);
-
-  // Update current time every 5 seconds for live countdown
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const fetchOrders = async () => {
     if (!user) return;
@@ -178,6 +168,10 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
       [orderId]: !prev[orderId]
     }));
   };
+
+  const handleFeedbackSubmitted = useCallback(() => {
+    fetchOrders();
+  }, []);
 
   const OrderHeaderDetails: React.FC<{ order: Order }> = ({ order }) => {
     const role = getUserRole(order);
@@ -444,9 +438,7 @@ const OrderManagementView: React.FC<OrderManagementViewProps> = () => {
                   bookTitle={order.book?.title || "Book"}
                   sellerName={order.seller?.name || "Seller"}
                   deliveredDate={order.updated_at}
-                  onFeedbackSubmitted={() => {
-                    fetchOrders();
-                  }}
+                  onFeedbackSubmitted={handleFeedbackSubmitted}
                 />
               </>
             )}
