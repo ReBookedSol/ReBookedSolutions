@@ -111,7 +111,7 @@ const BuyersProtectionDialog = ({
               </li>
               <li className="flex gap-3">
                 <span className="font-semibold text-blue-600 flex-shrink-0">4.</span>
-                <span>Payment is released to the seller after your confirmation</span>
+                <span>Payment is released to the seller after your buyer confirmation</span>
               </li>
             </ol>
           </div>
@@ -165,6 +165,14 @@ const BuyersProtectionDialog = ({
             <h3 className="font-semibold text-blue-900 mb-2">About Our Platform Fee</h3>
             <p className="text-sm text-blue-900 leading-relaxed">
               A R20 platform fee is applied to each purchase. This covers secure payment processing, buyer protection, dispute resolution, and platform maintenance to ensure a safe experience for all users.
+            </p>
+          </div>
+
+          {/* Payment Issues Section */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <h3 className="font-semibold text-amber-900 mb-2">Payment Issues?</h3>
+            <p className="text-sm text-amber-900 leading-relaxed">
+              If you experience any payment-related issues, please email us at <a href="mailto:payments@rebookedsolutions.co.za" className="underline font-semibold">payments@rebookedsolutions.co.za</a> with details of your concern and we'll help resolve it promptly.
             </p>
           </div>
         </div>
