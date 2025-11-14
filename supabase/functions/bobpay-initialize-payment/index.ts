@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     );
 
     const paymentData: PaymentInitRequest = await req.json();
-    console.log('Initializing BobPay payment:', paymentData);
+    // Initializing payment - sensitive data not logged
 
     // Get BobPay credentials from environment
     const bobpayApiUrl = Deno.env.get('BOBPAY_API_URL');
