@@ -55,15 +55,7 @@ serve(async (req) => {
       shipping_address
     } = requestBody;
 
-    console.log('📊 Request parameters:', {
-      book_id,
-      buyer_id,
-      seller_id,
-      amount,
-      payment_reference,
-      buyer_email: buyer_email ? 'provided' : 'not provided',
-      shipping_address: shipping_address ? 'provided' : 'not provided'
-    });
+    // Request parameters validated
 
     // Validate required fields
     const missingFields = [];
