@@ -300,13 +300,9 @@ export class BankingService {
         (bankingDetails.status === "active" || bankingDetails.status === "pending")
       );
 
-      console.log("🏦 [Banking Setup Check] Banking validation:", {
-        userId,
-        hasBankingDetails: !!bankingDetails,
-        currentStatus: bankingDetails?.status,
-        isValidStatus: bankingDetails?.status === "active" || bankingDetails?.status === "pending",
-        finalResult: hasBankingFromTable,
-      });
+      if (import.meta.env.DEV) {
+        console.log("🏦 [Banking Setup Check] Banking validation complete");
+      }
 
       const hasBankingSetup = hasBankingFromTable;
 
@@ -526,13 +522,9 @@ export class BankingService {
         missingRequirements,
       };
 
-      console.log("🏦 Banking requirements check result:", {
-        userId,
-        hasBankingInfo: status.hasBankingInfo,
-        isVerified: status.isVerified,
-        canListBooks: status.canListBooks,
-        missingRequirements: status.missingRequirements,
-      });
+      if (import.meta.env.DEV) {
+        console.log("🏦 Banking requirements check result completed");
+      }
 
       return status;
     } catch (error) {
