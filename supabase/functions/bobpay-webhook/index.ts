@@ -107,11 +107,7 @@ Deno.serve(async (req) => {
     }
 
     const webhookData: BobPayWebhook = await req.json();
-    console.log('BobPay webhook received:', {
-      custom_payment_id: webhookData.custom_payment_id,
-      status: webhookData.status,
-      amount: webhookData.paid_amount,
-    });
+    // Webhook data processed - sensitive data not logged
 
     // Verify signature
     const passphrase = Deno.env.get('BOBPAY_PASSPHRASE');
