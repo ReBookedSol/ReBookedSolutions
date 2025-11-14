@@ -32,7 +32,6 @@ serve(async (req) => {
     let requestBody;
     try {
       const rawBody = await req.text();
-      console.log('📥 Raw request body:', rawBody);
       requestBody = JSON.parse(rawBody);
     } catch (error) {
       console.error('❌ Error parsing request body:', error);
