@@ -122,9 +122,7 @@ const Register = () => {
         }
       }
 
-      console.log("🔄 Calling register function...");
       const affiliateCode = getStoredAffiliateCode();
-      console.log("🔖 Using affiliate code:", affiliateCode);
       const result = await register(email, password, firstName, lastName, normalizedPhone, affiliateCode ?? undefined);
       console.log("✅ Register function returned:", result);
 
@@ -223,7 +221,7 @@ const Register = () => {
         });
 
         toast.info(
-          "�� An account with this email already exists. Please try logging in instead. If you forgot your password, use the 'Forgot Password' option.",
+          "📧 An account with this email already exists. Please try logging in instead. If you forgot your password, use the 'Forgot Password' option.",
           {
             duration: 8000,
           }
