@@ -217,7 +217,6 @@ const CheckoutSuccess: React.FC = () => {
 
       // Get the payment_reference from the order record
       const paymentReference = order.payment_reference || cleanReference;
-      console.log("Payment reference from order:", paymentReference);
 
       // Extract book info from items array
       const bookItem = order.items?.[0];
