@@ -1409,6 +1409,86 @@ const Policies = () => {
                         All refund requests must be supported by clear photographic evidence and a formal complaint lodged to legal@rebookedsolutions.co.za within the specified timeframe. Buyers are required to retain proof of delivery, shipping labels, and original packaging where applicable.
                       </p>
                     </section>
+
+                    <section>
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+                        2. Refund Request Procedure
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-3 sm:mb-4">
+                        To request a refund, buyers must:
+                      </p>
+                      <ul className="list-disc pl-6 space-y-2 text-gray-700 text-sm sm:text-base">
+                        <li>Submit a formal complaint within three (3) calendar days of delivery or estimated delivery date.</li>
+                        <li>
+                          Send an email to legal@rebookedsolutions.co.za including:
+                          <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700 text-sm sm:text-base">
+                            <li>Clear photographs of the item received.</li>
+                            <li>A detailed description of the issue.</li>
+                            <li>Relevant supporting documents (e.g., proof of delivery, shipping labels, original packaging).</li>
+                          </ul>
+                        </li>
+                        <li>Retain all original packaging and delivery documentation until the refund process is complete.</li>
+                        <li>Incomplete or late requests may not be considered.</li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+                        3. Exclusions
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-3 sm:mb-4">
+                        Refunds will not be granted for the following:
+                      </p>
+                      <ul className="list-disc pl-6 space-y-2 text-gray-700 text-sm sm:text-base">
+                        <li>Buyer's remorse or change of mind.</li>
+                        <li>Normal wear and tear consistent with secondhand goods.</li>
+                        <li>Delays caused by third-party couriers.</li>
+                        <li>Items damaged due to misuse, negligence, or improper handling by the buyer.</li>
+                        <li>Items returned with improper packaging that results in damage during transit.</li>
+                        <li>Items not returned in original condition or packaging, or with missing components.</li>
+                        <li>Refund requests submitted after the specified refund period.</li>
+                        <li>Issues arising from incorrect or unintended use of the product.</li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+                        4. Buyer Responsibility and Verification
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-3 sm:mb-4">
+                        Users must ensure that all delivery and payment information provided is accurate and complete. If a refund involves a payment previously processed:
+                      </p>
+                      <ul className="list-disc pl-6 space-y-2 text-gray-700 text-sm sm:text-base">
+                        <li>ReBooked Solutions will provide proof of transaction details, including recipient account information and timestamps.</li>
+                        <li>Buyers disputing a payment are responsible for verifying that submitted bank details and delivery records are accurate.</li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+                        5. Dispute Resolution
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-3 sm:mb-4">
+                        If a seller disputes a refund claim:
+                      </p>
+                      <ul className="list-disc pl-6 space-y-2 text-gray-700 text-sm sm:text-base">
+                        <li>Both parties may be required to submit evidence.</li>
+                        <li>The ReBooked Solutions Resolution Team will review documentation impartially.</li>
+                        <li>Decisions made by the Resolution Team are final and binding.</li>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 sm:mb-3">
+                        6. Refund Timeframes
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base mb-3 sm:mb-4">
+                        Approved refunds will typically be processed within 7–10 business days, subject to payment processor and banking timelines.
+                      </p>
+                      <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+                        Refunds may be delayed if additional verification is required or if disputes arise.
+                      </p>
+                    </section>
                   </div>
                 </CardContent>
               </Card>
